@@ -6,8 +6,6 @@
 
 BEGIN;
 
--- CREATE SCHEMA IF NOT EXISTS :"schema_name";
-
 SET search_path TO :"schema_name";
 
 -- ==========================================
