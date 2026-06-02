@@ -29,7 +29,7 @@ st.title("PostgreSQL Change Report")
 # Load DB config
 # -------------------------------------------------
 config = configparser.ConfigParser()
-config.read("config.ini")
+config.read("pdcd_config.ini")
 
 # Parse multiple database configurations
 db_configs = {}
