@@ -13,7 +13,7 @@ The project consists of three main parts:
 
 ## 1. Configuration
 
-The backend scripts rely on a central configuration file located at `deploy_scripts/pdcd_config.ini`. The Python UI expects a similar `config.ini` in its execution directory (`streamlit_app/config.ini`).
+The backend scripts rely on a central configuration file located at `deploy_scripts/pdcd_config.ini`. The Python UI expects a similar `pdcd_config.ini` in its execution directory (`streamlit_app/config.ini`).
 
 ### Example `pdcd_config.ini`
 ```ini
@@ -79,15 +79,14 @@ pip install -r requirements.txt
 ```
 
 ### How to Run
-Ensure you have a `config.ini` alongside the Python script containing your connection sections.
+Ensure you have a `pdcd_config.ini` alongside the Python script containing your connection sections.
 ```bash
 cd streamlit_app
 streamlit run pdcd_app.py
 ```
 
 ## End-to-End Workflow summary
-1. Setup connections in `deploy_scripts/pdcd_config.ini` and `streamlit_app/config.ini`.
+1. Setup connections in `deploy_scripts/pdcd_config.ini` and `streamlit_app/pdcd_config.ini`.
 2. Run `./deploy_pdcd.sh` to install schemas required to track the data.
 3. Schedule or perform manual runs using `python execute_database_changes.py`.
 4. Spin up the Streamlit UI using `streamlit run pdcd_app.py` inside the `streamlit_app` folder for visual representations of DB changes.
-# pdcd-final-prod-deploy

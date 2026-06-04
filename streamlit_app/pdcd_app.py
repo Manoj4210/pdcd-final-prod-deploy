@@ -45,7 +45,7 @@ for section in config.sections():
         }
 
 if not db_configs:
-    st.error("No database configurations found in config.ini")
+    st.error("No database configurations found in pdcd_config.ini")
     st.stop()
 
 # -------------------------------------------------
@@ -90,13 +90,14 @@ def load_data_for_database(db_config, use_time_window, start_time, end_time):
             'dbname': db_config['dbname'],
             'use_time_window': use_time_window
         }
+        schema_name = db_config['schema_name']
 
         # Detect snapshots if time not provided (EXISTING LOGIC)
         if not use_time_window:
             snap_df = pd.read_sql(
-                """
+                f"""
                 SELECT DISTINCT snapshot_id, MIN(processed_time) as snapshot_time
-                FROM data_monitoring.metadata_md5_changes
+                FROM {schema_name}.metadata_md5_changes
                 GROUP BY snapshot_id
                 ORDER BY snapshot_id DESC
                 LIMIT 2
@@ -121,11 +122,11 @@ def load_data_for_database(db_config, use_time_window, start_time, end_time):
 
         # Load change data
         if use_time_window:
-            QUERY = """
+            QUERY = f"""
                 SELECT snapshot_id, schema_name, object_type, object_type_name,
                        object_subtype, object_subtype_name, change_type,
                        processed_time, object_subtype_details
-                FROM data_monitoring.metadata_md5_changes
+                FROM {schema_name}.metadata_md5_changes
                 WHERE processed_time BETWEEN %(start)s AND %(end)s
                 ORDER BY snapshot_id, schema_name;
             """
@@ -135,19 +136,18 @@ def load_data_for_database(db_config, use_time_window, start_time, end_time):
                 params={"start": start_time, "end": end_time}
             )
         else:
-            QUERY = """
+            QUERY = f"""
                 SELECT snapshot_id, schema_name, object_type, object_type_name,
                        object_subtype, object_subtype_name, change_type,
                        processed_time, object_subtype_details
-                FROM data_monitoring.metadata_md5_changes
-                WHERE snapshot_id IN (%(prev)s, %(latest)s)
+                FROM {schema_name}.metadata_md5_changes
+                WHERE snapshot_id = %(latest)s
                 ORDER BY snapshot_id, schema_name;
             """
             df = pd.read_sql(
                 QUERY,
                 engine,
-                params={"prev": metadata['prev_snap'],
-                        "latest": metadata['latest_snap']}
+                params={"latest": metadata['latest_snap']}
             )
 
         if df.empty:
@@ -170,9 +170,10 @@ def render_overview_tab(df, db_config):
 
     # Schema Impact Summary (EXISTING LOGIC + timing columns)
     schema_rows = []
-    for schema, sdf in df.groupby("schema_name"):
+    # for schema, sdf in df.groupby("schema_name"):
+    for (snapshot_id, schema), sdf in df.groupby(["snapshot_id", "schema_name"]):
         schema_rows.append({
-            "Snapshot ID": sdf["snapshot_id"].iloc[0],
+            "Snapshot ID": snapshot_id,
             "Processed Time": format_processed_time(sdf["processed_time"].iloc[0]),
             "Schema": schema,
             "Change Types Detected": ", ".join(sorted(sdf["change_type"].unique())),
@@ -188,26 +189,26 @@ def render_overview_tab(df, db_config):
 
     # Table Summary
     fully_deleted_tables = {
-        (r["schema_name"], r["object_type_name"])
+        (r["snapshot_id"], r["schema_name"], r["object_type_name"])
         for _, r in df[
-            (df["object_type"] == "TABLE") &
-            (df["object_subtype"] == "") &
-            (df["change_type"] == "DELETED")
+            (df["object_type"] == "TABLE")
+            & (df["object_subtype"] == "")
+            & (df["change_type"] == "DELETED")
         ].iterrows()
     }
 
     table_rows = []
-    for (schema, table), tdf in df[df["object_type"] == "TABLE"].groupby(
-        ["schema_name", "object_type_name"]
+    for (snapshot_id, schema, table), tdf in df[df["object_type"] == "TABLE"].groupby(
+        ["snapshot_id", "schema_name", "object_type_name"]
     ):
-        if (schema, table) in fully_deleted_tables:
+        if (snapshot_id, schema, table) in fully_deleted_tables:
             change = "DELETED"
         else:
             change = ", ".join(sorted(tdf["change_type"].unique()))
 
         table_rows.append({
-            "Snapshot ID": tdf["snapshot_id"].iloc[0],
-            "Processed Time": format_processed_time(tdf["processed_time"].iloc[0]),
+            "Snapshot ID": snapshot_id,
+            "Processed Time": format_processed_time(tdf["processed_time"].min()),
             "Schema": schema,
             "Table": table,
             "Change Type": change,
@@ -224,11 +225,11 @@ def render_detailed_tab(df):
     """Renders the Detailed View tab (EXISTING LOGIC + timing columns)"""
 
     fully_deleted_tables = {
-        (r["schema_name"], r["object_type_name"])
+        (r["snapshot_id"], r["schema_name"], r["object_type_name"])
         for _, r in df[
-            (df["object_type"] == "TABLE") &
-            (df["object_subtype"] == "") &
-            (df["change_type"] == "DELETED")
+            (df["object_type"] == "TABLE")
+            & (df["object_subtype"] == "")
+            & (df["change_type"] == "DELETED")
         ].iterrows()
     }
 
@@ -236,12 +237,12 @@ def render_detailed_tab(df):
     column_rows = []
     columns_df = df[df["object_subtype"] == "COLUMN"]
 
-    for (schema, parent, col), cdf in columns_df.groupby(
-        ["schema_name", "object_type_name", "object_subtype_name"]
+    for (snapshot_id, schema, parent, col), cdf in columns_df.groupby(
+        ["snapshot_id", "schema_name", "object_type_name", "object_subtype_name"]
     ):
         parent_type = cdf["object_type"].iloc[0]
 
-        if parent_type == "TABLE" and (schema, parent) in fully_deleted_tables:
+        if parent_type == "TABLE" and (snapshot_id, schema, parent) in fully_deleted_tables:
             continue
 
         scope_df = df[
@@ -269,8 +270,8 @@ def render_detailed_tab(df):
         ]
 
         column_rows.append({
-            "Snapshot ID": cdf["snapshot_id"].iloc[0],
-            "Processed Time": format_processed_time(cdf["processed_time"].iloc[0]),
+            "Snapshot ID": snapshot_id,
+            "Processed Time": format_processed_time(cdf["processed_time"].min()),
             "Schema": schema,
             "Object Type": parent_type,
             "Object Name": parent,
@@ -338,15 +339,16 @@ def render_detailed_tab(df):
         & (df["object_subtype"].isin(["TRIGGER", "RULE", "CHECK CONSTRAINT", "TABLE CONSTRAINT", "SEQUENCE"]))
     ]
 
-    for (schema, table, subtype, name), g in table_level_objects.groupby(
-        ["schema_name", "object_type_name", "object_subtype", "object_subtype_name"]
+    for (snapshot_id, schema, table, subtype, name), g in table_level_objects.groupby(
+        ["snapshot_id", "schema_name", "object_type_name",
+            "object_subtype", "object_subtype_name"]
     ):
-        if (schema, table) in fully_deleted_tables:
+        if (snapshot_id, schema, table) in fully_deleted_tables:
             continue
 
         table_object_rows.append({
-            "Snapshot ID": g["snapshot_id"].iloc[0],
-            "Processed Time": format_processed_time(g["processed_time"].iloc[0]),
+            "Snapshot ID": snapshot_id,
+            "Processed Time": format_processed_time(g["processed_time"].min()),
             "Schema": schema,
             "Table": table,
             "Object Type": subtype,
@@ -366,12 +368,12 @@ def render_detailed_tab(df):
     # Schema-Level Objects (EXISTING LOGIC + timing columns)
     schema_object_detail_rows = []
 
-    for (schema, ot, on), g in df[df["object_type"] != "TABLE"].groupby(
-        ["schema_name", "object_type", "object_type_name"]
+    for (snapshot_id, schema, ot, on), g in df[df["object_type"] != "TABLE"].groupby(
+        ["snapshot_id", "schema_name", "object_type", "object_type_name"]
     ):
         schema_object_detail_rows.append({
-            "Snapshot ID": g["snapshot_id"].iloc[0],
-            "Processed Time": format_processed_time(g["processed_time"].iloc[0]),
+            "Snapshot ID": snapshot_id,
+            "Processed Time": format_processed_time(g["processed_time"].min()),
             "Schema": schema,
             "Object Type": ot,
             "Object Name": normalize(on),

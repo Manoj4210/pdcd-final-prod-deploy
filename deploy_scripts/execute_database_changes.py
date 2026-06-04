@@ -67,10 +67,6 @@ class PDCDPartitionRunner:
         self.user = config.get("user")
         self.password = config.get("password")
         self.schema_name = config.get("schema_name")
-        self.partition_schema = config.get(
-            "partition_schema",
-            os.getenv("PDCD_PARTITION_SCHEMA", self.schema_name),
-        )
         self.conn_pool = None
         self.log = None
 
@@ -106,7 +102,7 @@ class PDCDPartitionRunner:
                 "SET idle_in_transaction_session_timeout = %s;", (IDLE_TX_TIMEOUT,))
             cur.execute("SET client_min_messages = warning;")
             cur.execute(
-                sql.SQL("SET search_path TO {}, {};").format(
+                sql.SQL("SET search_path TO {};").format(
                     sql.Identifier(self.schema_name),
                     sql.Identifier(self.partition_schema),
                 )

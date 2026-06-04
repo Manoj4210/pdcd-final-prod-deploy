@@ -1,11 +1,11 @@
 -- ============================================================
 -- Production-safe revert script for objects created by
--- pdcd_init_partition.sql
+-- initialize_pdcd_functions.sql
 -- ============================================================
 -- Usage:
 --   psql -h <host> -p <port> -U <user> -d <dbname> \
 --     -v schema_name=<pdcd_schema> \
---     -f revert_pdcd_init_partition_restrict.sql
+--     -f revert_pdcd_fucntions.sql
 --
 -- Notes:
 --   Uses RESTRICT instead of CASCADE. If any external object depends on a PDCD
@@ -25,6 +25,8 @@
 BEGIN;
 
 -- SET search_path TO :"schema_name";
+
+SET search_path TO data_monitoring;
 
 -- ------------------------------------------------------------
 -- Drop child partitions first so partitioned parents can be

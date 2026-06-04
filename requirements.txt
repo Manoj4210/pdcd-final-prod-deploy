@@ -1,5 +1,0 @@
-streamlit
-pandas
-SQLAlchemy
-psycopg2-binary
-streamlit-datetime-picker
