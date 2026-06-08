@@ -24,13 +24,17 @@
 
 BEGIN;
 
--- SET search_path TO :"schema_name";
-
-SET search_path TO data_monitoring;
+SET search_path TO :"schema_name";
 
 -- ------------------------------------------------------------
 -- Drop child partitions first so partitioned parents can be
 -- dropped with RESTRICT.
+
+--   schema_name   |                table_name
+-- -----------------+-------------------------------------------
+--  data_monitoring | metadata_md5_staging_non_table_objects_p2
+--  data_monitoring | metadata_md5_staging_table_objects_p2
+-- (2 rows)
 -- ------------------------------------------------------------
 DO $$
 DECLARE

@@ -90,7 +90,9 @@ def load_data_for_database(db_config, use_time_window, start_time, end_time):
             'dbname': db_config['dbname'],
             'use_time_window': use_time_window
         }
-        schema_name = db_config['schema_name']
+        schema_name = (db_config.get('schema_name') or '').strip()
+        if not schema_name or not re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*", schema_name):
+            return None, f"Invalid schema_name in pdcd_config.ini: {schema_name!r}"
 
         # Detect snapshots if time not provided (EXISTING LOGIC)
         if not use_time_window:
@@ -582,7 +584,7 @@ if selected_data['df'] is not None:
         "Schema",
         available_schemas,
         default=available_schemas,
-        key="schema_filter"
+        key=f"schema_filter_{selected_db_key}"
     )
 
     # Change Type Filter (context-specific, single instance)
@@ -591,7 +593,7 @@ if selected_data['df'] is not None:
         "Change Type",
         available_change_types,
         default=available_change_types,
-        key="change_filter"
+        key=f"change_filter_{selected_db_key}"
     )
 else:
     schema_filter = []

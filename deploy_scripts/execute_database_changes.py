@@ -12,21 +12,23 @@ import os
 import sys
 import time
 from contextlib import contextmanager
-from datetime import datetime
+from datetime import datetime, timedelta
 
 import psycopg2
-from psycopg2 import pool, sql
+from psycopg2 import OperationalError, pool, sql
 
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 CONFIG_FILE = os.path.join(BASE_DIR, "pdcd_config.ini")
 LOG_DIR = os.path.join(BASE_DIR, "logs")
 
-POOL_SIZE = int(os.getenv("PDCD_POOL_SIZE", "1"))
 LOCK_TIMEOUT = os.getenv("PDCD_LOCK_TIMEOUT", "5s")
 STATEMENT_TIMEOUT = os.getenv("PDCD_STATEMENT_TIMEOUT", "45min")
 IDLE_TX_TIMEOUT = os.getenv("PDCD_IDLE_TX_TIMEOUT", "2min")
-PARTITION_RETENTION = int(os.getenv("PDCD_PARTITION_RETENTION", "1"))
+MAX_PARALLEL_WORKERS_PER_GATHER = os.getenv(
+    "PDCD_MAX_PARALLEL_WORKERS_PER_GATHER", "0")
+RETRY_DELAY_SECONDS = int(os.getenv("PDCD_RETRY_DELAY_SECONDS", "180"))
+MAX_RETRIES = int(os.getenv("PDCD_MAX_RETRIES", "3"))
 ALLOW_INITIAL_CLEANUP = os.getenv(
     "PDCD_ALLOW_INITIAL_CLEANUP", "false").lower() == "true"
 
@@ -71,10 +73,9 @@ class PDCDPartitionRunner:
         self.log = None
 
     def init_pool(self):
-        maxconn = max(1, POOL_SIZE)
         self.conn_pool = pool.ThreadedConnectionPool(
             minconn=1,
-            maxconn=maxconn,
+            maxconn=1,
             host=self.host,
             port=self.port,
             dbname=self.dbname,
@@ -100,11 +101,14 @@ class PDCDPartitionRunner:
             cur.execute("SET statement_timeout = %s;", (STATEMENT_TIMEOUT,))
             cur.execute(
                 "SET idle_in_transaction_session_timeout = %s;", (IDLE_TX_TIMEOUT,))
+            cur.execute(
+                "SET max_parallel_workers_per_gather = %s;",
+                (MAX_PARALLEL_WORKERS_PER_GATHER,),
+            )
             cur.execute("SET client_min_messages = warning;")
             cur.execute(
                 sql.SQL("SET search_path TO {};").format(
                     sql.Identifier(self.schema_name),
-                    sql.Identifier(self.partition_schema),
                 )
             )
 
@@ -190,11 +194,11 @@ class PDCDPartitionRunner:
                 WHERE n.nspname = %s
                   AND c.relname = %s;
                 """,
-                (self.partition_schema, table_name),
+                (self.schema_name, table_name),
             )
             if not partitioned:
                 raise RuntimeError(
-                    f"Required partitioned table missing: {self.partition_schema}.{table_name}"
+                    f"Required partitioned table missing: {self.schema_name}.{table_name}"
                 )
 
     def latest_snapshot_id(self, conn):
@@ -224,9 +228,11 @@ class PDCDPartitionRunner:
         self.log.write(f"Database    : {self.dbname}")
         self.log.write(f"User        : {self.user}")
         self.log.write(f"Schema Name : {self.schema_name}")
-        self.log.write(f"Pool Size   : {POOL_SIZE}")
+        self.log.write("Active Conns: 1")
         self.log.write(f"Lock Timeout: {LOCK_TIMEOUT}")
         self.log.write(f"Stmt Timeout: {STATEMENT_TIMEOUT}")
+        self.log.write(
+            f"Max Parallel: {MAX_PARALLEL_WORKERS_PER_GATHER}")
         self.log.write("========================================")
         self.log.write("Executing process_metadata_md5_changes...")
 
@@ -450,6 +456,24 @@ def load_config():
     return config
 
 
+def is_retryable_error(exc):
+    message = str(exc).lower()
+    retryable_markers = (
+        "lock timeout",
+        "deadlock detected",
+        "could not obtain lock",
+        "canceling statement due to statement timeout",
+        "connection refused",
+        "could not connect to server",
+        "server closed the connection unexpectedly",
+        "terminating connection",
+        "timeout expired",
+    )
+    return isinstance(exc, OperationalError) or any(
+        marker in message for marker in retryable_markers
+    )
+
+
 def main():
     config = load_config()
     sections = [section for section in config.sections(
@@ -468,7 +492,31 @@ def main():
             print(
                 f"Skipping [{section}], missing required values: {', '.join(missing)}")
             continue
-        runner.run()
+
+        attempt = 0
+        while True:
+            try:
+                runner.run()
+                break
+            except Exception as exc:
+                attempt += 1
+                should_retry = attempt <= MAX_RETRIES and is_retryable_error(
+                    exc)
+                if not should_retry:
+                    raise
+
+                retry_at = (datetime.now() + timedelta(
+                    seconds=RETRY_DELAY_SECONDS)).strftime('%a %b %d %H:%M:%S %Z %Y')
+                print(
+                    f"WARN: [{section}] Attempt {attempt} failed with retryable error: {exc}",
+                    file=sys.stderr,
+                )
+                print(
+                    f"WARN: [{section}] Retrying after {RETRY_DELAY_SECONDS} seconds "
+                    f"(retry {attempt} of {MAX_RETRIES}) at {retry_at}",
+                    file=sys.stderr,
+                )
+                time.sleep(RETRY_DELAY_SECONDS)
 
 
 if __name__ == "__main__":
