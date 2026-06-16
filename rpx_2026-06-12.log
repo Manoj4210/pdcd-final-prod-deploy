@@ -1,0 +1,348 @@
+========================================
+Run started : Fri Jun 12 07:26:19  2026
+Section     : [database_2]
+Host        : 10.50.12.43
+Port        : 5432
+Database    : rpx
+User        : tds_etl_app
+Schema Name : data_monitoring
+Active Conns: 1
+Lock Timeout: 5s
+Stmt Timeout: 45min
+Max Parallel: 0
+========================================
+Executing process_metadata_md5_changes...
+                  step_name                  |         result         |    duration     
+---------------------------------------------+------------------------+-----------------
+WARN: Active AccessExclusiveLock on: lit_docs_stage.idx_infringement_amended_product, lit_docs_stage.lit_docs_complaint_defendant_infringement_complaint, lit_docs_stage.lit_docs_complaint_defendant_infringement_amended, portal_etl_ents.idx_stg_preloading_del, portal_etl_ents.stg_preloading, portal_etl_ents.stg_staging, portal_etl_ents.stg_preloading_pkey, portal_etl_ents.stg_staging_pkey, portal_etl_ents.idx_stg_preloading_view, lit_docs_stage.idx_infringement_complaint_product. Waiting 10s...
+WARN: Active AccessExclusiveLock on: portal_etl_lits.idx_stg_preloading_del, lit_docs_stage.idx_infringement_amended_product, lit_docs_stage.lit_docs_complaint_defendant_infringement_complaint, lit_docs_stage.lit_docs_complaint_defendant_infringement_amended, portal_etl_lits.idx_stg_preloading_view, portal_etl_lits.stg_preloading, portal_etl_lits.stg_staging, portal_etl_lits.stg_staging_pkey, portal_etl_lits.stg_preloading_pkey, lit_docs_stage.idx_infringement_complaint_product. Waiting 10s...
+WARN: Active AccessExclusiveLock on: lit_docs_stage.idx_infringement_amended_product, lit_docs_stage.lit_docs_complaint_defendant_infringement_complaint, lit_docs_stage.lit_docs_complaint_defendant_infringement_amended, lit_docs_stage.lit_docs_complaint_defendant_infringement_temp, lit_docs_stage.idx_infringement_complaint_product. Waiting 10s...
+WARN: Active AccessExclusiveLock on: lit_docs_stage.idx_infringement_amended_product, lit_docs_stage.lit_docs_complaint_defendant_infringement_complaint, lit_docs_stage.lit_docs_complaint_defendant_infringement_amended, lit_docs_stage.lit_docs_complaint_defendant_infringement_temp, lit_docs_stage.idx_infringement_complaint_product. Waiting 10s...
+WARN: Active AccessExclusiveLock on: lit_docs_stage.idx_infringement_amended_product, lit_docs_stage.lit_docs_complaint_defendant_infringement_complaint, lit_docs_stage.lit_docs_complaint_defendant_infringement_amended, lit_docs_stage.lit_docs_complaint_defendant_infringement_temp, lit_docs_stage.idx_infringement_complaint_product. Waiting 10s...
+ERROR: [database_2] Batch failed: Timed out waiting 50s for active AccessExclusiveLocks to release on: lit_docs_stage.idx_infringement_amended_product, lit_docs_stage.lit_docs_complaint_defendant_infringement_complaint, lit_docs_stage.lit_docs_complaint_defendant_infringement_amended, lit_docs_stage.lit_docs_complaint_defendant_infringement_temp, lit_docs_stage.idx_infringement_complaint_product
+========================================
+Run started : Fri Jun 12 07:32:19  2026
+Section     : [database_2]
+Host        : 10.50.12.43
+Port        : 5432
+Database    : rpx
+User        : tds_etl_app
+Schema Name : data_monitoring
+Active Conns: 1
+Lock Timeout: 5s
+Stmt Timeout: 45min
+Max Parallel: 0
+========================================
+Executing process_metadata_md5_changes...
+                  step_name                  |         result         |    duration     
+---------------------------------------------+------------------------+-----------------
+ mode                                        | Initial Load           | 00:00:00
+ load_snapshot_table                         | snapshot_id: 1         | 00:00:00
+ create_staging_partitions                   | Created _p1            | 00:00:00
+WARNING: Run failed. Cleaning up failed snapshot_id: 1...
+Cleaned up failed snapshot_id: 1.
+ERROR: [database_2] Batch failed: canceling statement due to lock timeout
+CONTEXT:  SQL function "fetch_index_details" statement 1
+SQL function "compute_indexes_md5" statement 1
+SQL statement "CREATE TEMP TABLE temp_current_metadata AS
+    SELECT DISTINCT * FROM compute_columns_md5(p_table_list)
+    UNION ALL SELECT DISTINCT * FROM compute_constraints_md5(p_table_list)
+    UNION ALL SELECT DISTINCT * FROM compute_indexes_md5(p_table_list)
+    UNION ALL SELECT DISTINCT * FROM compute_references_md5(p_table_list)
+    UNION ALL SELECT DISTINCT * FROM compute_triggers_md5(p_table_list)
+    UNION ALL SELECT DISTINCT * FROM compute_sequences_md5(p_table_list)
+    UNION ALL SELECT DISTINCT * FROM compute_functions_md5(p_table_list)
+    UNION ALL SELECT DISTINCT * FROM compute_views_md5(p_table_list)
+    UNION ALL SELECT DISTINCT * FROM compute_materialized_views_md5(p_table_list)"
+PL/pgSQL function load_md5_metadata_table(text[]) line 14 at SQL statement
+
+========================================
+Run started : Fri Jun 12 07:35:56  2026
+Section     : [database_2]
+Host        : 10.50.12.43
+Port        : 5432
+Database    : rpx
+User        : tds_etl_app
+Schema Name : data_monitoring
+Active Conns: 1
+Lock Timeout: 5s
+Stmt Timeout: 45min
+Max Parallel: 0
+========================================
+Executing process_metadata_md5_changes...
+                  step_name                  |         result         |    duration     
+---------------------------------------------+------------------------+-----------------
+ mode                                        | Initial Load           | 00:00:00
+ load_snapshot_table                         | snapshot_id: 1         | 00:00:00
+ create_staging_partitions                   | Created _p1            | 00:00:00
+ load_md5_metadata_table                     | Completed              | 00:02:39
+ load_md5_metadata_staging_table_objects     | Completed              | 00:00:02
+ load_md5_metadata_staging_non_table_objects | Completed              | 00:00:00
+ load_metadata_md5_metrics                   | Completed              | 00:00:08
+Run completed: Fri Jun 12 07:38:47  2026
+Total duration: 00:02:51
+
+========================================
+========================================
+Run started : Fri Jun 12 08:00:03  2026
+Section     : [database_2]
+Host        : 10.50.12.43
+Port        : 5432
+Database    : rpx
+User        : tds_etl_app
+Schema Name : data_monitoring
+Active Conns: 1
+Lock Timeout: 5s
+Stmt Timeout: 45min
+Max Parallel: 0
+========================================
+Executing process_metadata_md5_changes...
+                  step_name                  |         result         |    duration     
+---------------------------------------------+------------------------+-----------------
+WARN: Active AccessExclusiveLock on: analyst_etl_app.aud_tab_column_changed_values, lit_docs_stage.idx_infringement_complaint_product, analyst_etl_app.aud_tab_column_changed_values_lower_idx, analyst_etl_app.aud_tab_column_changed_values_table_key_idx, analyst_etl_app.aud_tab_column_changed_values_table_key_idx, analyst_etl_app.aud_tab_column_changed_values_table_key_idx, lit_docs_stage.lit_docs_complaint_defendant_infringement_amended, lit_docs_stage.idx_infringement_amended_product, lit_docs_stage.lit_docs_complaint_defendant_infringement_complaint. Waiting 10s...
+WARN: Active AccessExclusiveLock on: analyst_etl_app.aud_tab_column_changed_values_created_at_idx, analyst_etl_app.sep_patent_declaration_tmp_standards_organization_patent_i_idx1, lit_campaigns.stg_staging_pkey, analyst_etl_app.aud_tab_column_changed_values, analyst_etl_app.sep_patent_declaration_tmp, lit_docs_stage.idx_infringement_complaint_product, analyst_etl_app.aud_tab_column_changed_values_lower_idx, analyst_etl_app.sep_patent_declaration_refresh_patent_declaration_id_idx, lit_campaigns.idx_stg_preloading_del, analyst_etl_app.aud_tab_column_changed_values_table_key_idx, analyst_etl_app.sep_patent_declaration_tmp_standards_organization_patent_id_idx, lit_campaigns.stg_staging, lit_campaigns.stg_preloading_pkey, lit_campaigns.idx_stg_preloading_view, lit_campaigns.stg_preloading_object_id_idx1, analyst_etl_app.sep_patent_declaration_refresh, lit_campaigns.stg_preloading, lit_docs_stage.lit_docs_complaint_defendant_infringement_amended, lit_campaigns.stg_preloading_operation_mode_idx, lit_campaigns.stg_preloading_object_id_idx, lit_docs_stage.idx_infringement_amended_product, lit_docs_stage.lit_docs_complaint_defendant_infringement_complaint. Waiting 10s...
+WARN: Active AccessExclusiveLock on: analyst_etl_app.aud_tab_column_changed_values_created_at_idx, analyst_etl_app.sep_patent_declaration_tmp_standards_organization_patent_i_idx1, lit_campaigns.stg_staging_pkey, analyst_etl_app.aud_tab_column_changed_values, analyst_etl_app.sep_patent_declaration_tmp, lit_docs_stage.idx_infringement_complaint_product, portal_etl_dc_analytics.temp_records, analyst_etl_app.aud_tab_column_changed_values_lower_idx, portal_etl_dc_analytics.stg_preloading, analyst_etl_app.aud_tab_column_changed_values_expr_tab_name_operation_mode__idx, portal_etl_dc_analytics.idx_stg_preloading_view, analyst_etl_app.sep_patent_declaration_refresh_patent_declaration_id_idx, lit_campaigns.idx_stg_preloading_del, analyst_etl_app.aud_tab_column_changed_values_table_key_idx, analyst_etl_app.sep_patent_declaration_tmp_standards_organization_patent_id_idx, lit_campaigns.stg_staging, lit_campaigns.stg_preloading_pkey, analyst_etl_app.aud_tab_column_changed_values_expr_tab_name_operation_mode__idx, lit_campaigns.idx_stg_preloading_view, lit_campaigns.stg_preloading_object_id_idx1, analyst_etl_app.sep_patent_declaration_refresh, portal_etl_dc_analytics.stg_staging_pkey, lit_campaigns.stg_preloading, lit_docs_stage.lit_docs_complaint_defendant_infringement_amended, lit_campaigns.stg_preloading_operation_mode_idx, lit_campaigns.stg_preloading_object_id_idx, portal_etl_dc_analytics.stg_preloading_pkey, portal_etl_dc_analytics.stg_staging, analyst_etl_app.aud_tab_column_changed_values_expr_tab_name_operation_mode__idx, lit_docs_stage.idx_infringement_amended_product, lit_docs_stage.lit_docs_complaint_defendant_infringement_complaint, portal_etl_dc_analytics.idx_stg_preloading_del. Waiting 10s...
+WARN: Active AccessExclusiveLock on: analyst_etl_app.aud_tab_column_changed_values_created_at_idx, analyst_etl_app.sep_patent_declaration_tmp_standards_organization_patent_i_idx1, lit_campaigns.stg_staging_pkey, analyst_etl_app.aud_tab_column_changed_values, analyst_etl_app.sep_patent_declaration_tmp, lit_docs_stage.idx_infringement_complaint_product, analyst_etl_app.aud_tab_column_changed_values_lower_idx, analyst_etl_app.aud_tab_column_changed_values_expr_tab_name_operation_mode__idx, analyst_etl_app.sep_patent_declaration_refresh_patent_declaration_id_idx, lit_campaigns.idx_stg_preloading_del, analyst_etl_app.aud_tab_column_changed_values_table_key_idx, analyst_etl_app.sep_patent_declaration_tmp_standards_organization_patent_id_idx, lit_campaigns.stg_staging, lit_campaigns.stg_preloading_pkey, lit_campaigns.idx_stg_preloading_view, lit_campaigns.stg_preloading_object_id_idx1, analyst_etl_app.sep_patent_declaration_refresh, lit_campaigns.stg_preloading, lit_docs_stage.lit_docs_complaint_defendant_infringement_amended, lit_campaigns.stg_preloading_operation_mode_idx, lit_campaigns.stg_preloading_object_id_idx, lit_docs_stage.idx_infringement_amended_product, lit_docs_stage.lit_docs_complaint_defendant_infringement_complaint. Waiting 10s...
+WARN: Active AccessExclusiveLock on: portal_etl_docket_entries.idx_stg_preloading_view, analyst_etl_app.aud_tab_column_changed_values_created_at_idx, analyst_etl_app.sep_patent_declaration_tmp_standards_organization_patent_i_idx1, lit_campaigns.stg_staging_pkey, empower_alerts.stg_preloading_source_tab_pk_idx, portal_event_logger.stg_preloading, analyst_etl_app.aud_tab_column_changed_values, patent_stats.stg_staging, portal_etl_docket_entries.stg_staging, empower_alerts.stg_preloading_event_type_id_idx, portal_etl_docket_entries.idx_stg_preloading_del, analyst_etl_app.sep_patent_declaration_tmp, portal_event_logger.stg_preloading_aud_tab_idx, lit_docs_stage.idx_infringement_complaint_product, patent_stats.stg_preloading, portal_etl_pats.stg_preloading_deletion_flag_idx, empower_alerts.stg_preloading_pkey, portal_etl_docket_entries.stg_preloading, analyst_etl_app.aud_tab_column_changed_values_lower_idx, portal_event_logger.stg_preloading_source_tab_pk_idx, analyst_etl_app.aud_tab_column_changed_values_expr_tab_name_operation_mode__idx, empower_alerts.stg_preloading_aud_tab_idx, analyst_etl_app.sep_patent_declaration_refresh_patent_declaration_id_idx, portal_etl_pats.stg_preloading_view_name_idx, portal_etl_pats.stg_preloading, portal_etl_pats.stg_staging_pkey, lit_campaigns.idx_stg_preloading_del, empower_alerts.stg_preloading_del_idx, analyst_etl_app.aud_tab_column_changed_values_table_key_idx, portal_etl_docket_entries.stg_staging_pkey, portal_etl_pats.stg_preloading_view_name_batch_number_operation_mode_stg_id_idx, patent_stats.idx_stg_preloading_view, patent_stats.stg_preloading_pkey, patent_stats.idx_stg_preloading_del, patent_stats.stg_staging_pkey, portal_event_logger.idx_stg_preloading_del, analyst_etl_app.sep_patent_declaration_tmp_standards_organization_patent_id_idx, portal_etl_pats.stg_staging, portal_etl_docket_entries.stg_preloading_pkey, lit_campaigns.stg_staging, empower_alerts.stg_preloading, lit_campaigns.stg_preloading_pkey, portal_event_logger.stg_preloading_pkey, lit_campaigns.idx_stg_preloading_view, portal_etl_pats.stg_preloading_pkey, lit_campaigns.stg_preloading_object_id_idx1, analyst_etl_app.sep_patent_declaration_refresh, lit_campaigns.stg_preloading, portal_event_logger.stg_preloading_event_type_id_idx, lit_docs_stage.lit_docs_complaint_defendant_infringement_amended, lit_campaigns.stg_preloading_operation_mode_idx, lit_campaigns.stg_preloading_object_id_idx, lit_docs_stage.idx_infringement_amended_product, lit_docs_stage.lit_docs_complaint_defendant_infringement_complaint. Waiting 10s...
+ERROR: [database_2] Batch failed: Timed out waiting 50s for active AccessExclusiveLocks to release on: portal_etl_docket_entries.idx_stg_preloading_view, analyst_etl_app.aud_tab_column_changed_values_created_at_idx, analyst_etl_app.sep_patent_declaration_tmp_standards_organization_patent_i_idx1, lit_campaigns.stg_staging_pkey, empower_alerts.stg_preloading_source_tab_pk_idx, portal_event_logger.stg_preloading, analyst_etl_app.aud_tab_column_changed_values, patent_stats.stg_staging, portal_etl_docket_entries.stg_staging, empower_alerts.stg_preloading_event_type_id_idx, portal_etl_docket_entries.idx_stg_preloading_del, analyst_etl_app.sep_patent_declaration_tmp, portal_event_logger.stg_preloading_aud_tab_idx, lit_docs_stage.idx_infringement_complaint_product, lit_campaigns.lits_changed_pkey, patents_etl_app.stg_staging_pkey, patent_stats.stg_preloading, portal_etl_pats.stg_preloading_deletion_flag_idx, empower_alerts.stg_preloading_pkey, portal_etl_docket_entries.stg_preloading, lit_campaigns.lits_changed_lit_id_idx, analyst_etl_app.aud_tab_column_changed_values_lower_idx, portal_event_logger.stg_preloading_source_tab_pk_idx, analyst_etl_app.aud_tab_column_changed_values_expr_tab_name_operation_mode__idx, patents_etl_app.stg_preloading_pkey, empower_alerts.stg_preloading_aud_tab_idx, patents_etl_app.stg_preloading, patents_etl_app.idx_stg_preloading_del, analyst_etl_app.sep_patent_declaration_refresh_patent_declaration_id_idx, portal_etl_pats.stg_preloading_view_name_idx, patents_etl_app.stg_staging, portal_etl_pats.stg_preloading, portal_etl_pats.stg_staging_pkey, lit_campaigns.idx_stg_preloading_del, empower_alerts.stg_preloading_del_idx, analyst_etl_app.aud_tab_column_changed_values_table_key_idx, portal_etl_docket_entries.stg_staging_pkey, portal_etl_pats.stg_preloading_view_name_batch_number_operation_mode_stg_id_idx, patent_stats.idx_stg_preloading_view, patent_stats.stg_preloading_pkey, portal_etl_lits.stg_staging_pkey, portal_etl_lits.stg_staging, patent_stats.idx_stg_preloading_del, portal_etl_lits.stg_preloading, patent_stats.stg_staging_pkey, patents_etl_app.idx_stg_preloading_view, portal_event_logger.idx_stg_preloading_del, analyst_etl_app.sep_patent_declaration_tmp_standards_organization_patent_id_idx, portal_etl_pats.stg_staging, lit_campaigns.lits_changed, portal_etl_docket_entries.stg_preloading_pkey, lit_campaigns.stg_staging, empower_alerts.stg_preloading, lit_campaigns.stg_preloading_pkey, portal_etl_lits.stg_preloading_pkey, portal_event_logger.stg_preloading_pkey, lit_campaigns.idx_stg_preloading_view, portal_etl_lits.idx_stg_preloading_view, portal_etl_pats.stg_preloading_pkey, lit_campaigns.stg_preloading_object_id_idx1, analyst_etl_app.sep_patent_declaration_refresh, portal_etl_lits.idx_stg_preloading_del, lit_campaigns.stg_preloading, portal_event_logger.stg_preloading_event_type_id_idx, lit_docs_stage.lit_docs_complaint_defendant_infringement_amended, lit_campaigns.stg_preloading_operation_mode_idx, lit_campaigns.temp_records, lit_campaigns.stg_preloading_object_id_idx, lit_docs_stage.idx_infringement_amended_product, lit_docs_stage.lit_docs_complaint_defendant_infringement_complaint, patents_etl_app.stg_preloading_view_name_batch_number_operation_mode_stg_id_idx
+========================================
+Run started : Fri Jun 12 08:30:02  2026
+Section     : [database_2]
+Host        : 10.50.12.43
+Port        : 5432
+Database    : rpx
+User        : tds_etl_app
+Schema Name : data_monitoring
+Active Conns: 1
+Lock Timeout: 5s
+Stmt Timeout: 45min
+Max Parallel: 0
+========================================
+Executing process_metadata_md5_changes...
+                  step_name                  |         result         |    duration     
+---------------------------------------------+------------------------+-----------------
+WARN: Active AccessExclusiveLock on: lit_docs_stage.idx_lit_docs_court_orders_base_court_order_id, analyst_etl_app.get_analyst_rpx_seps_data_tbl_11jul2026_iec, lit_docs_stage.idx_lit_docs_court_orders_base_judge_alias_id, lit_docs_stage.lit_docs_pat_claim_term_temp, lit_docs_stage.idx_lit_docs_patent_court_order_details_temp_doc_id, lit_docs_stage.idx_lit_docs_patent_court_order_details_temp_pat_id, lit_docs_stage.lit_docs_patent_court_order_details_temp, lit_docs_stage.idx_lit_docs_court_orders_base_outcome_id, lit_docs_stage.lit_docs_court_orders_base, lit_docs_stage.idx_lit_docs_patent_court_order_details_temp_case_key. Waiting 10s...
+WARN: Active AccessExclusiveLock on: lit_campaigns.stg_preloading_object_id_idx1, lit_docs_stage.idx_lit_docs_court_orders_base_court_order_id, lit_campaigns.idx_stg_preloading_view, lit_campaigns.temp_records, lit_campaigns.stg_preloading_object_id_idx, lit_docs_stage.idx_lit_docs_court_orders_base_judge_alias_id, lit_campaigns.stg_preloading_operation_mode_idx, lit_campaigns.stg_preloading, lit_docs_stage.lit_docs_pat_claim_term_temp, lit_docs_stage.idx_lit_docs_patent_court_order_details_temp_doc_id, lit_docs_stage.idx_lit_docs_patent_court_order_details_temp_pat_id, lit_campaigns.lits_changed, lit_campaigns.stg_staging, lit_campaigns.stg_preloading_pkey, lit_docs_stage.lit_docs_patent_court_order_details_temp, lit_campaigns.idx_stg_preloading_del, lit_campaigns.stg_staging_pkey, lit_docs_stage.idx_lit_docs_court_orders_base_outcome_id, lit_campaigns.lits_changed_lit_id_idx, lit_docs_stage.lit_docs_court_orders_base, lit_campaigns.lits_changed_pkey, lit_docs_stage.idx_lit_docs_patent_court_order_details_temp_case_key. Waiting 10s...
+WARN: Active AccessExclusiveLock on: lit_campaigns.stg_preloading_object_id_idx1, lit_docs_stage.idx_lit_docs_court_orders_base_court_order_id, lit_campaigns.idx_stg_preloading_view, lit_campaigns.temp_records, lit_campaigns.stg_preloading_object_id_idx, lit_docs_stage.idx_lit_docs_court_orders_base_judge_alias_id, lit_campaigns.stg_preloading_operation_mode_idx, lit_campaigns.stg_preloading, lit_docs_stage.lit_docs_pat_claim_term_temp, lit_docs_stage.idx_lit_docs_patent_court_order_details_temp_doc_id, analyst_etl_app.get_analyst_rpx_seps_data_tbl_11jul2026_iec, lit_docs_stage.idx_lit_docs_patent_court_order_details_temp_pat_id, lit_campaigns.lits_changed, lit_campaigns.stg_staging, lit_campaigns.stg_preloading_pkey, lit_docs_stage.lit_docs_patent_court_order_details_temp, lit_campaigns.idx_stg_preloading_del, lit_campaigns.stg_staging_pkey, lit_docs_stage.idx_lit_docs_court_orders_base_outcome_id, lit_campaigns.lits_changed_lit_id_idx, lit_docs_stage.lit_docs_court_orders_base, lit_campaigns.lits_changed_pkey, lit_docs_stage.idx_lit_docs_patent_court_order_details_temp_case_key. Waiting 10s...
+WARN: Active AccessExclusiveLock on: lit_campaigns.stg_preloading_object_id_idx1, lit_docs_stage.idx_lit_docs_court_orders_base_court_order_id, lit_campaigns.idx_stg_preloading_view, lit_campaigns.temp_records, lit_campaigns.stg_preloading_object_id_idx, lit_docs_stage.idx_lit_docs_court_orders_base_judge_alias_id, lit_campaigns.stg_preloading_operation_mode_idx, lit_campaigns.stg_preloading, lit_docs_stage.lit_docs_pat_claim_term_temp, lit_docs_stage.idx_lit_docs_patent_court_order_details_temp_doc_id, analyst_etl_app.get_analyst_rpx_seps_data_tbl_11jul2026_iec, lit_docs_stage.idx_lit_docs_patent_court_order_details_temp_pat_id, lit_campaigns.lits_changed, lit_campaigns.stg_staging, lit_campaigns.stg_preloading_pkey, lit_docs_stage.lit_docs_patent_court_order_details_temp, analyst_event_logger.stg_preloading_pkey, lit_campaigns.idx_stg_preloading_del, analyst_event_logger.stg_preloading, lit_campaigns.stg_staging_pkey, lit_docs_stage.idx_lit_docs_court_orders_base_outcome_id, lit_campaigns.lits_changed_lit_id_idx, lit_docs_stage.lit_docs_court_orders_base, lit_campaigns.lits_changed_pkey, analyst_event_logger.idx_stg_preloading_del, lit_docs_stage.idx_lit_docs_patent_court_order_details_temp_case_key. Waiting 10s...
+WARN: Active AccessExclusiveLock on: lit_campaigns.stg_preloading_object_id_idx1, lit_docs_stage.idx_lit_docs_court_orders_base_court_order_id, lit_campaigns.idx_stg_preloading_view, lit_campaigns.temp_records, lit_campaigns.stg_preloading_object_id_idx, lit_docs_stage.idx_lit_docs_court_orders_base_judge_alias_id, lit_campaigns.stg_preloading_operation_mode_idx, patent_stats.stg_staging_pkey, lit_campaigns.stg_preloading, patent_stats.stg_preloading_pkey, lit_docs_stage.lit_docs_pat_claim_term_temp, lit_docs_stage.idx_lit_docs_patent_court_order_details_temp_doc_id, analyst_etl_app.get_analyst_rpx_seps_data_tbl_11jul2026_iec, lit_docs_stage.idx_lit_docs_patent_court_order_details_temp_pat_id, lit_campaigns.lits_changed, lit_campaigns.stg_staging, lit_campaigns.stg_preloading_pkey, patent_stats.stg_preloading, lit_docs_stage.lit_docs_patent_court_order_details_temp, lit_campaigns.idx_stg_preloading_del, patent_stats.stg_staging, lit_campaigns.stg_staging_pkey, lit_docs_stage.idx_lit_docs_court_orders_base_outcome_id, lit_campaigns.lits_changed_lit_id_idx, lit_docs_stage.lit_docs_court_orders_base, lit_campaigns.lits_changed_pkey, lit_docs_stage.idx_lit_docs_patent_court_order_details_temp_case_key. Waiting 10s...
+ERROR: [database_2] Batch failed: Timed out waiting 50s for active AccessExclusiveLocks to release on: portal_etl_upc.stg_preloading, lit_campaigns.stg_preloading_object_id_idx1, lit_docs_stage.idx_lit_docs_court_orders_base_court_order_id, portal_etl_upc.stg_staging_pkey, lit_campaigns.idx_stg_preloading_view, portal_event_logger.stg_preloading, portal_etl_docket_entries.stg_staging_pkey, lit_campaigns.temp_records, lit_campaigns.stg_preloading_object_id_idx, lit_docs_stage.idx_lit_docs_court_orders_base_judge_alias_id, lit_campaigns.stg_preloading_operation_mode_idx, lit_docs_stage.lit_docs_case_dismissal_temp, patent_stats.idx_stg_preloading_del, portal_etl_pats.stg_preloading, portal_event_logger.stg_preloading_aud_tab_idx, patent_stats.stg_staging_pkey, portal_etl_pats.stg_staging_pkey, lit_campaigns.stg_preloading, portal_etl_upc.stg_preloading_pkey, portal_etl_pats.stg_preloading_view_name_idx, portal_etl_docket_entries.stg_preloading_pkey, patent_stats.stg_preloading_pkey, patent_stats.idx_stg_preloading_view, lit_docs_stage.lit_docs_pat_claim_term_temp, portal_event_logger.stg_preloading_source_tab_pk_idx, lit_docs_stage.idx_lit_docs_patent_court_order_details_temp_doc_id, analyst_etl_app.get_analyst_rpx_seps_data_tbl_11jul2026_iec, lit_docs_stage.idx_lit_docs_patent_court_order_details_temp_pat_id, lit_campaigns.lits_changed, lit_campaigns.stg_staging, lit_campaigns.stg_preloading_pkey, portal_etl_pats.stg_preloading_deletion_flag_idx, patent_stats.stg_preloading, portal_etl_docket_entries.idx_stg_preloading_del, portal_etl_docket_entries.stg_staging, portal_etl_pats.stg_preloading_pkey, portal_etl_docket_entries.idx_stg_preloading_view, portal_event_logger.idx_stg_preloading_del, lit_docs_stage.lit_docs_patent_court_order_details_temp, portal_etl_docket_entries.stg_preloading, portal_etl_upc.stg_staging, portal_event_logger.stg_preloading_pkey, lit_campaigns.idx_stg_preloading_del, patent_stats.stg_staging, portal_etl_pats.stg_preloading_view_name_batch_number_operation_mode_stg_id_idx, lit_campaigns.stg_staging_pkey, lit_docs_stage.idx_lit_docs_court_orders_base_outcome_id, portal_event_logger.stg_preloading_event_type_id_idx, portal_etl_pats.stg_staging, lit_campaigns.lits_changed_lit_id_idx, lit_docs_stage.lit_docs_court_orders_base, lit_campaigns.lits_changed_pkey, lit_docs_stage.idx_lit_docs_patent_court_order_details_temp_case_key
+========================================
+Run started : Fri Jun 12 09:00:03  2026
+Section     : [database_2]
+Host        : 10.50.12.43
+Port        : 5432
+Database    : rpx
+User        : tds_etl_app
+Schema Name : data_monitoring
+Active Conns: 1
+Lock Timeout: 5s
+Stmt Timeout: 45min
+Max Parallel: 0
+========================================
+Executing process_metadata_md5_changes...
+                  step_name                  |         result         |    duration     
+---------------------------------------------+------------------------+-----------------
+ mode                                        | Subsequent Compare Run | 00:00:00
+ prepare_previous_partitions                 | Kept _p1               | 00:00:00
+ load_snapshot_table                         | snapshot_id: 2         | 00:00:00
+WARNING: Run failed. Cleaning up failed snapshot_id: 2...
+Cleaned up failed snapshot_id: 2.
+ERROR: [database_2] Batch failed: canceling statement due to lock timeout
+CONTEXT:  SQL function "fetch_column_details" statement 1
+SQL function "compute_columns_md5" statement 1
+SQL statement "CREATE TEMP TABLE temp_current_table_metadata AS
+    SELECT DISTINCT * FROM compute_columns_md5(p_table_list)
+    UNION ALL SELECT DISTINCT * FROM compute_constraints_md5(p_table_list)
+    UNION ALL SELECT DISTINCT * FROM compute_indexes_md5(p_table_list)
+    UNION ALL SELECT DISTINCT * FROM compute_references_md5(p_table_list)
+    UNION ALL SELECT DISTINCT * FROM compute_triggers_md5(p_table_list)
+    UNION ALL SELECT DISTINCT * FROM compute_sequences_md5(p_table_list) seq WHERE seq.object_type = 'Table'"
+PL/pgSQL function compare_load_md5_table_metadata(text[]) line 16 at SQL statement
+
+========================================
+Run started : Fri Jun 12 09:03:21  2026
+Section     : [database_2]
+Host        : 10.50.12.43
+Port        : 5432
+Database    : rpx
+User        : tds_etl_app
+Schema Name : data_monitoring
+Active Conns: 1
+Lock Timeout: 5s
+Stmt Timeout: 45min
+Max Parallel: 0
+========================================
+Executing process_metadata_md5_changes...
+                  step_name                  |         result         |    duration     
+---------------------------------------------+------------------------+-----------------
+ mode                                        | Subsequent Compare Run | 00:00:00
+ prepare_previous_partitions                 | Kept _p1               | 00:00:00
+ load_snapshot_table                         | snapshot_id: 2         | 00:00:00
+WARNING: Run failed. Cleaning up failed snapshot_id: 2...
+Cleaned up failed snapshot_id: 2.
+ERROR: [database_2] Batch failed: canceling statement due to lock timeout
+CONTEXT:  SQL function "fetch_index_details" statement 1
+SQL function "compute_indexes_md5" statement 1
+SQL statement "CREATE TEMP TABLE temp_current_table_metadata AS
+    SELECT DISTINCT * FROM compute_columns_md5(p_table_list)
+    UNION ALL SELECT DISTINCT * FROM compute_constraints_md5(p_table_list)
+    UNION ALL SELECT DISTINCT * FROM compute_indexes_md5(p_table_list)
+    UNION ALL SELECT DISTINCT * FROM compute_references_md5(p_table_list)
+    UNION ALL SELECT DISTINCT * FROM compute_triggers_md5(p_table_list)
+    UNION ALL SELECT DISTINCT * FROM compute_sequences_md5(p_table_list) seq WHERE seq.object_type = 'Table'"
+PL/pgSQL function compare_load_md5_table_metadata(text[]) line 16 at SQL statement
+
+========================================
+Run started : Fri Jun 12 09:07:10  2026
+Section     : [database_2]
+Host        : 10.50.12.43
+Port        : 5432
+Database    : rpx
+User        : tds_etl_app
+Schema Name : data_monitoring
+Active Conns: 1
+Lock Timeout: 5s
+Stmt Timeout: 45min
+Max Parallel: 0
+========================================
+Executing process_metadata_md5_changes...
+                  step_name                  |         result         |    duration     
+---------------------------------------------+------------------------+-----------------
+WARN: Active AccessExclusiveLock on: lit_docs_stage.lit_docs_complaint_defendant_infringement_amended, lit_docs_stage.idx_infringement_amended_product, lit_docs_stage.lit_docs_complaint_defendant_infringement_complaint, lit_docs_stage.idx_infringement_complaint_product. Waiting 10s...
+WARN: Active AccessExclusiveLock on: lit_docs_stage.lit_docs_complaint_defendant_infringement_amended, lit_docs_stage.idx_infringement_amended_product, lit_docs_stage.lit_docs_complaint_defendant_infringement_complaint, lit_docs_stage.idx_infringement_complaint_product. Waiting 10s...
+WARN: Active AccessExclusiveLock on: analyst_etl_app.patent_assignee_or_ptab_owner_id_v1_index_old, lit_docs_stage.lit_docs_complaint_defendant_infringement_amended, analyst_etl_app.analyst_ent_alias_names_old_v1, lit_docs_stage.idx_infringement_amended_product, lit_docs_stage.lit_docs_complaint_defendant_infringement_complaint, lit_docs_stage.idx_infringement_complaint_product. Waiting 10s...
+WARN: Active AccessExclusiveLock on: lit_docs_stage.lit_docs_complaint_defendant_infringement_amended, lit_docs_stage.idx_infringement_amended_product, lit_docs_stage.lit_docs_complaint_defendant_infringement_complaint, lit_docs_stage.idx_infringement_complaint_product. Waiting 10s...
+WARN: Active AccessExclusiveLock on: lit_docs_stage.lit_docs_complaint_defendant_infringement_amended, lit_docs_stage.idx_infringement_amended_product, lit_docs_stage.lit_docs_complaint_defendant_infringement_complaint, lit_docs_stage.idx_infringement_complaint_product. Waiting 10s...
+ERROR: [database_2] Batch failed: Timed out waiting 50s for active AccessExclusiveLocks to release on: lit_docs_stage.lit_docs_complaint_defendant_infringement_amended, lit_docs_stage.idx_infringement_amended_product, lit_docs_stage.lit_docs_complaint_defendant_infringement_complaint, lit_docs_stage.idx_infringement_complaint_product
+========================================
+Run started : Fri Jun 12 09:30:02  2026
+Section     : [database_2]
+Host        : 10.50.12.43
+Port        : 5432
+Database    : rpx
+User        : tds_etl_app
+Schema Name : data_monitoring
+Active Conns: 1
+Lock Timeout: 5s
+Stmt Timeout: 45min
+Max Parallel: 0
+========================================
+Executing process_metadata_md5_changes...
+                  step_name                  |         result         |    duration     
+---------------------------------------------+------------------------+-----------------
+ mode                                        | Subsequent Compare Run | 00:00:00
+ prepare_previous_partitions                 | Kept _p1               | 00:00:00
+ load_snapshot_table                         | snapshot_id: 2         | 00:00:00
+WARNING: Run failed. Cleaning up failed snapshot_id: 2...
+Cleaned up failed snapshot_id: 2.
+ERROR: [database_2] Batch failed: canceling statement due to lock timeout
+CONTEXT:  SQL function "fetch_column_details" statement 1
+SQL function "compute_columns_md5" statement 1
+SQL statement "CREATE TEMP TABLE temp_current_table_metadata AS
+    SELECT DISTINCT * FROM compute_columns_md5(p_table_list)
+    UNION ALL SELECT DISTINCT * FROM compute_constraints_md5(p_table_list)
+    UNION ALL SELECT DISTINCT * FROM compute_indexes_md5(p_table_list)
+    UNION ALL SELECT DISTINCT * FROM compute_references_md5(p_table_list)
+    UNION ALL SELECT DISTINCT * FROM compute_triggers_md5(p_table_list)
+    UNION ALL SELECT DISTINCT * FROM compute_sequences_md5(p_table_list) seq WHERE seq.object_type = 'Table'"
+PL/pgSQL function compare_load_md5_table_metadata(text[]) line 16 at SQL statement
+
+========================================
+Run started : Fri Jun 12 09:33:15  2026
+Section     : [database_2]
+Host        : 10.50.12.43
+Port        : 5432
+Database    : rpx
+User        : tds_etl_app
+Schema Name : data_monitoring
+Active Conns: 1
+Lock Timeout: 5s
+Stmt Timeout: 45min
+Max Parallel: 0
+========================================
+Executing process_metadata_md5_changes...
+                  step_name                  |         result         |    duration     
+---------------------------------------------+------------------------+-----------------
+WARN: Active AccessExclusiveLock on: analyst_etl_app.aud_tab_column_changed_values_table_key_idx, analyst_etl_app.aud_tab_column_changed_values_lower_idx, analyst_etl_app.aud_tab_column_changed_values_expr_tab_name_operation_mode__idx, analyst_etl_app.aud_tab_column_changed_values_created_at_idx, analyst_etl_app.aud_tab_column_changed_values. Waiting 10s...
+ mode                                        | Subsequent Compare Run | 00:00:00
+ prepare_previous_partitions                 | Kept _p1               | 00:00:00
+ load_snapshot_table                         | snapshot_id: 2         | 00:00:00
+ compare_load_md5_table_metadata             | Completed              | 00:01:41
+ compare_load_md5_non_table_metadata         | Completed              | 00:00:30
+ create_staging_partitions                   | Created _p2            | 00:00:00
+ load_md5_metadata_staging_table_objects     | Completed              | 00:00:04
+ load_md5_metadata_staging_non_table_objects | Completed              | 00:00:00
+ drop_old_partitions                         | Kept _p2               | 00:00:00
+ Previous snapshot partition was _p1; current snapshot partition is _p2.
+ load_metadata_md5_metrics                   | Completed              | 00:00:00
+Run completed: Fri Jun 12 09:35:42  2026
+Total duration: 00:02:26
+
+========================================
+========================================
+Run started : Fri Jun 12 10:00:03  2026
+Section     : [database_2]
+Host        : 10.50.12.43
+Port        : 5432
+Database    : rpx
+User        : tds_etl_app
+Schema Name : data_monitoring
+Active Conns: 1
+Lock Timeout: 5s
+Stmt Timeout: 45min
+Max Parallel: 0
+========================================
+Executing process_metadata_md5_changes...
+                  step_name                  |         result         |    duration     
+---------------------------------------------+------------------------+-----------------
+WARN: Active AccessExclusiveLock on: lit_docs_stage.idx_infringement_amended_product, lit_docs_stage.lit_docs_complaint_defendant_infringement_complaint, lit_docs_stage.lit_docs_complaint_defendant_infringement_amended, lit_docs_stage.lit_docs_complaint_defendant_infringement_temp, lit_docs_stage.idx_infringement_complaint_product. Waiting 10s...
+WARN: Active AccessExclusiveLock on: lit_docs_stage.idx_infringement_amended_product, lit_docs_stage.lit_docs_complaint_defendant_infringement_complaint, lit_campaigns.stg_preloading, lit_campaigns.temp_records, lit_campaigns.stg_preloading_object_id_idx, lit_docs_stage.lit_docs_complaint_defendant_infringement_amended, lit_campaigns.stg_preloading_operation_mode_idx, lit_campaigns.idx_stg_preloading_view, lit_campaigns.stg_preloading_object_id_idx1, lit_campaigns.lits_changed, lit_campaigns.stg_staging, lit_campaigns.stg_preloading_pkey, lit_campaigns.idx_stg_preloading_del, lit_docs_stage.lit_docs_complaint_defendant_infringement_temp, lit_campaigns.lits_changed_pkey, lit_campaigns.lits_changed_lit_id_idx, lit_docs_stage.idx_infringement_complaint_product, lit_campaigns.stg_staging_pkey. Waiting 10s...
+WARN: Active AccessExclusiveLock on: lit_docs_stage.idx_infringement_amended_product, lit_docs_stage.lit_docs_complaint_defendant_infringement_complaint, lit_docs_stage.lit_docs_complaint_defendant_infringement_amended, analyst_etl_app.aud_tab_column_changed_values, lit_docs_stage.lit_docs_complaint_defendant_infringement_temp, lit_docs_stage.idx_infringement_complaint_product. Waiting 10s...
+WARN: Active AccessExclusiveLock on: lit_docs_stage.idx_infringement_amended_product, lit_docs_stage.lit_docs_complaint_defendant_infringement_complaint, lit_docs_stage.lit_docs_complaint_defendant_infringement_amended, analyst_event_logger.idx_stg_preloading_del, lit_docs_stage.lit_docs_complaint_defendants_base, analyst_event_logger.stg_preloading, analyst_event_logger.stg_preloading_pkey, lit_docs_stage.lit_docs_complaint_defendant_infringement_temp, lit_docs_stage.idx_infringement_complaint_product. Waiting 10s...
+WARN: Active AccessExclusiveLock on: lit_docs_stage.idx_infringement_amended_product, lit_docs_stage.lit_docs_complaint_defendant_infringement_complaint, lit_docs_stage.lit_docs_complaint_defendant_infringement_amended, portal_etl_pats.stg_preloading_deletion_flag_idx, lit_docs_stage.lit_docs_complaint_defendants_base, portal_etl_pats.stg_staging_pkey, portal_etl_pats.stg_preloading, portal_etl_pats.stg_preloading_view_name_idx, portal_etl_pats.stg_preloading_view_name_batch_number_operation_mode_stg_id_idx, lit_docs_stage.lit_docs_complaint_defendant_infringement_temp, portal_etl_pats.stg_staging, portal_etl_pats.stg_preloading_pkey, lit_docs_stage.idx_infringement_complaint_product. Waiting 10s...
+ERROR: [database_2] Batch failed: Timed out waiting 50s for active AccessExclusiveLocks to release on: lit_docs_stage.idx_infringement_amended_product, lit_docs_stage.lit_docs_complaint_defendant_infringement_complaint, lit_docs_stage.lit_docs_complaint_defendant_infringement_amended, lit_docs_stage.lit_docs_complaint_defendants_base, lit_docs_stage.lit_docs_complaint_defendant_infringement_temp, lit_docs_stage.idx_infringement_complaint_product
+========================================
+Run started : Fri Jun 12 10:30:03  2026
+Section     : [database_2]
+Host        : 10.50.12.43
+Port        : 5432
+Database    : rpx
+User        : tds_etl_app
+Schema Name : data_monitoring
+Active Conns: 1
+Lock Timeout: 5s
+Stmt Timeout: 45min
+Max Parallel: 0
+========================================
+Executing process_metadata_md5_changes...
+                  step_name                  |         result         |    duration     
+---------------------------------------------+------------------------+-----------------
+WARN: Active AccessExclusiveLock on: lit_docs_stage.lit_docs_complaint_defendant_infringement_amended, lit_docs_stage.idx_infringement_amended_product, lit_docs_stage.lit_docs_complaint_defendant_infringement_complaint, lit_docs_stage.idx_infringement_complaint_product, lit_docs_stage.lit_docs_complaint_defendant_infringement_temp. Waiting 10s...
+WARN: Active AccessExclusiveLock on: lit_campaigns.lits_changed_lit_id_idx, lit_campaigns.lits_changed_pkey, lit_campaigns.stg_staging_pkey, lit_docs_stage.lit_docs_complaint_defendant_infringement_amended, lit_campaigns.idx_stg_preloading_del, lit_docs_stage.idx_infringement_amended_product, lit_docs_stage.lit_docs_complaint_defendant_infringement_complaint, lit_docs_stage.idx_infringement_complaint_product, lit_campaigns.lits_changed, lit_campaigns.stg_staging, lit_campaigns.stg_preloading_pkey, lit_docs_stage.lit_docs_complaint_defendant_infringement_temp, lit_campaigns.stg_preloading_object_id_idx, lit_campaigns.temp_records, lit_campaigns.stg_preloading_operation_mode_idx, lit_campaigns.stg_preloading, lit_campaigns.stg_preloading_object_id_idx1, lit_campaigns.idx_stg_preloading_view. Waiting 10s...
+WARN: Active AccessExclusiveLock on: lit_campaigns.lits_changed_lit_id_idx, lit_campaigns.lits_changed_pkey, lit_campaigns.stg_staging_pkey, lit_docs_stage.lit_docs_complaint_defendant_infringement_amended, lit_campaigns.idx_stg_preloading_del, lit_docs_stage.idx_infringement_amended_product, lit_docs_stage.lit_docs_complaint_defendant_infringement_complaint, lit_docs_stage.idx_infringement_complaint_product, lit_campaigns.lits_changed, lit_campaigns.stg_staging, lit_campaigns.stg_preloading_pkey, lit_docs_stage.lit_docs_complaint_defendant_infringement_temp, lit_campaigns.stg_preloading_object_id_idx, lit_campaigns.temp_records, lit_campaigns.stg_preloading_operation_mode_idx, lit_campaigns.stg_preloading, lit_campaigns.stg_preloading_object_id_idx1, lit_campaigns.idx_stg_preloading_view. Waiting 10s...
+WARN: Active AccessExclusiveLock on: lit_campaigns.lits_changed_lit_id_idx, lit_campaigns.lits_changed_pkey, lit_campaigns.stg_staging_pkey, lit_docs_stage.lit_docs_complaint_defendant_infringement_amended, lit_campaigns.idx_stg_preloading_del, lit_docs_stage.idx_infringement_amended_product, lit_docs_stage.lit_docs_complaint_defendant_infringement_complaint, lit_docs_stage.idx_infringement_complaint_product, lit_campaigns.lits_changed, lit_campaigns.stg_staging, lit_campaigns.stg_preloading_pkey, lit_docs_stage.lit_docs_complaint_defendant_infringement_temp, lit_campaigns.stg_preloading_object_id_idx, lit_campaigns.temp_records, lit_campaigns.stg_preloading_operation_mode_idx, lit_campaigns.stg_preloading, lit_campaigns.stg_preloading_object_id_idx1, lit_campaigns.idx_stg_preloading_view. Waiting 10s...
+WARN: Active AccessExclusiveLock on: lit_campaigns.lits_changed_lit_id_idx, lit_campaigns.lits_changed_pkey, portal_etl_pats.stg_preloading_pkey, lit_campaigns.stg_staging_pkey, lit_docs_stage.lit_docs_complaint_defendant_infringement_amended, lit_campaigns.idx_stg_preloading_del, lit_docs_stage.idx_infringement_amended_product, portal_etl_pats.stg_staging, lit_docs_stage.lit_docs_complaint_defendant_infringement_complaint, portal_etl_pats.stg_preloading_view_name_batch_number_operation_mode_stg_id_idx, lit_docs_stage.idx_infringement_complaint_product, portal_etl_pats.stg_preloading, portal_etl_pats.stg_staging_pkey, lit_campaigns.lits_changed, lit_campaigns.stg_staging, lit_campaigns.stg_preloading_pkey, portal_etl_pats.stg_preloading_view_name_idx, lit_docs_stage.lit_docs_complaint_defendant_infringement_temp, portal_etl_pats.stg_preloading_deletion_flag_idx, lit_campaigns.stg_preloading_object_id_idx, lit_campaigns.temp_records, lit_campaigns.stg_preloading_operation_mode_idx, lit_campaigns.stg_preloading, lit_campaigns.stg_preloading_object_id_idx1, lit_campaigns.idx_stg_preloading_view. Waiting 10s...
+ERROR: [database_2] Batch failed: Timed out waiting 50s for active AccessExclusiveLocks to release on: lit_campaigns.lits_changed_lit_id_idx, lit_campaigns.lits_changed_pkey, patent_stats.stg_staging, patent_stats.stg_preloading, lit_campaigns.stg_staging_pkey, lit_docs_stage.lit_docs_complaint_defendant_infringement_amended, lit_campaigns.idx_stg_preloading_del, lit_docs_stage.idx_infringement_amended_product, lit_docs_stage.lit_docs_complaint_defendant_infringement_complaint, lit_docs_stage.idx_infringement_complaint_product, patent_stats.idx_stg_preloading_del, patent_stats.stg_staging_pkey, lit_campaigns.lits_changed, lit_campaigns.stg_staging, patent_stats.idx_stg_preloading_view, lit_campaigns.stg_preloading_pkey, patent_stats.stg_preloading_pkey, lit_docs_stage.lit_docs_complaint_defendant_infringement_temp, lit_campaigns.stg_preloading_object_id_idx, lit_campaigns.temp_records, lit_campaigns.stg_preloading_operation_mode_idx, lit_campaigns.stg_preloading, lit_campaigns.stg_preloading_object_id_idx1, lit_campaigns.idx_stg_preloading_view
+========================================
+Run started : Fri Jun 12 11:00:09  2026
+Section     : [database_2]
+Host        : 10.50.12.43
+Port        : 5432
+Database    : rpx
+User        : tds_etl_app
+Schema Name : data_monitoring
+Active Conns: 1
+Lock Timeout: 5s
+Stmt Timeout: 45min
+Max Parallel: 0
+========================================
+Executing process_metadata_md5_changes...
+                  step_name                  |         result         |    duration     
+---------------------------------------------+------------------------+-----------------
+WARN: Active AccessExclusiveLock on: lit_campaigns.stg_staging_pkey, lit_campaigns.lits_changed_pkey, lit_campaigns.lits_changed_lit_id_idx, lit_docs_stage.idx_infringement_complaint_product, lit_campaigns.idx_stg_preloading_del, lit_docs_stage.lit_docs_complaint_defendant_infringement_amended, lit_docs_stage.lit_docs_complaint_defendant_infringement_complaint, lit_docs_stage.idx_infringement_amended_product, lit_campaigns.stg_preloading_pkey, lit_campaigns.lits_changed, lit_campaigns.stg_staging, lit_campaigns.idx_stg_preloading_view, lit_campaigns.stg_preloading_object_id_idx1, lit_campaigns.stg_preloading, lit_campaigns.stg_preloading_operation_mode_idx, lit_campaigns.temp_records, lit_campaigns.stg_preloading_object_id_idx. Waiting 10s...
+WARN: Active AccessExclusiveLock on: lit_campaigns.stg_staging_pkey, lit_campaigns.lits_changed_pkey, lit_campaigns.lits_changed_lit_id_idx, lit_docs_stage.idx_infringement_complaint_product, lit_campaigns.idx_stg_preloading_del, lit_docs_stage.lit_docs_complaint_defendant_infringement_amended, lit_docs_stage.lit_docs_complaint_defendant_infringement_complaint, lit_docs_stage.idx_infringement_amended_product, lit_campaigns.stg_preloading_pkey, lit_campaigns.lits_changed, lit_campaigns.stg_staging, lit_campaigns.idx_stg_preloading_view, lit_campaigns.stg_preloading_object_id_idx1, lit_campaigns.stg_preloading, lit_campaigns.stg_preloading_operation_mode_idx, lit_campaigns.temp_records, lit_campaigns.stg_preloading_object_id_idx. Waiting 10s...
+WARN: Active AccessExclusiveLock on: analyst_etl_app.aud_tab_column_changed_values_lower_idx, analyst_etl_app.aud_tab_column_changed_values, lit_docs_stage.idx_infringement_complaint_product, analyst_etl_app.aud_tab_column_changed_values_lower_idx, analyst_etl_app.aud_tab_column_changed_values_lower_idx, lit_docs_stage.lit_docs_complaint_defendant_infringement_amended, lit_docs_stage.lit_docs_complaint_defendant_infringement_complaint, lit_docs_stage.idx_infringement_amended_product. Waiting 10s...
+WARN: Active AccessExclusiveLock on: patent_stats.stg_staging, patent_stats.stg_preloading, analyst_etl_app.aud_tab_column_changed_values, portal_etl_pats.stg_preloading_pkey, analyst_etl_app.aud_tab_column_changed_values_created_at_idx, analyst_etl_app.aud_tab_column_changed_values_table_key_idx, lit_docs_stage.idx_infringement_complaint_product, portal_etl_pats.stg_staging, analyst_etl_app.aud_tab_column_changed_values_expr_tab_name_operation_mode__idx, analyst_etl_app.aud_tab_column_changed_values_lower_idx, portal_etl_pats.stg_preloading_view_name_batch_number_operation_mode_stg_id_idx, patent_stats.stg_preloading_pkey, lit_docs_stage.lit_docs_complaint_defendant_infringement_amended, patent_stats.idx_stg_preloading_view, analyst_event_logger.stg_preloading_pkey, portal_etl_pats.stg_preloading, lit_docs_stage.lit_docs_complaint_defendant_infringement_complaint, portal_etl_pats.stg_staging_pkey, analyst_event_logger.stg_preloading, portal_etl_pats.stg_preloading_view_name_idx, lit_docs_stage.idx_infringement_amended_product, patent_stats.idx_stg_preloading_del, patent_stats.stg_staging_pkey, portal_etl_pats.stg_preloading_deletion_flag_idx, analyst_event_logger.idx_stg_preloading_del, analyst_etl_app.aud_tab_column_changed_values_expr_tab_name_operation_mode_idx1. Waiting 10s...
+WARN: Active AccessExclusiveLock on: patent_stats.stg_staging, portal_etl_docket_entries.stg_staging_pkey, patents_etl_app.stg_preloading_view_name_batch_number_operation_mode_stg_id_idx, portal_event_logger.stg_preloading_event_type_id_idx, portal_etl_docket_entries.stg_preloading_pkey, patent_stats.stg_preloading, portal_etl_pats.stg_preloading_pkey, lit_docs_stage.idx_infringement_complaint_product, portal_event_logger.stg_preloading_pkey, portal_etl_pats.stg_staging, portal_event_logger.idx_stg_preloading_del, patents_etl_app.idx_stg_preloading_view, portal_etl_pats.stg_preloading_view_name_batch_number_operation_mode_stg_id_idx, patent_stats.stg_preloading_pkey, patents_etl_app.stg_staging, lit_docs_stage.lit_docs_complaint_defendant_infringement_amended, patent_stats.idx_stg_preloading_view, portal_etl_lits.idx_stg_preloading_view, portal_etl_docket_entries.idx_stg_preloading_view, portal_etl_pats.stg_preloading, lit_docs_stage.lit_docs_complaint_defendant_infringement_complaint, portal_etl_pats.stg_staging_pkey, portal_etl_docket_entries.idx_stg_preloading_del, portal_etl_pats.stg_preloading_view_name_idx, lit_docs_stage.idx_infringement_amended_product, patent_stats.idx_stg_preloading_del, patent_stats.stg_staging_pkey, portal_etl_lits.idx_stg_preloading_del, portal_etl_docket_entries.stg_staging, patents_etl_app.stg_preloading, patents_etl_app.idx_stg_preloading_del, portal_etl_docket_entries.stg_preloading, portal_event_logger.stg_preloading_source_tab_pk_idx, patents_etl_app.stg_preloading_pkey, portal_etl_lits.stg_staging_pkey, portal_etl_pats.stg_preloading_deletion_flag_idx, portal_event_logger.stg_preloading_aud_tab_idx, patents_etl_app.stg_staging_pkey, portal_etl_lits.stg_preloading, portal_etl_lits.stg_staging, portal_event_logger.stg_preloading, portal_etl_lits.stg_preloading_pkey. Waiting 10s...
+ERROR: [database_2] Batch failed: Timed out waiting 50s for active AccessExclusiveLocks to release on: lit_docs_stage.idx_infringement_complaint_product, lit_docs_stage.lit_docs_complaint_defendant_infringement_amended, lit_docs_stage.lit_docs_complaint_defendant_infringement_complaint, lit_docs_stage.idx_infringement_amended_product

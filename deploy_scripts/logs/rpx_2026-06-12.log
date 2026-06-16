@@ -1,0 +1,77 @@
+2026-06-12 18:06:36 [INFO ] ========================================
+2026-06-12 18:06:36 [INFO ] Run started : Fri Jun 12 18:06:36  2026
+2026-06-12 18:06:36 [INFO ] Section     : [database_dev_pth]
+2026-06-12 18:06:36 [INFO ] Host        : 10.50.168.126
+2026-06-12 18:06:36 [INFO ] Port        : 5432
+2026-06-12 18:06:36 [INFO ] Database    : rpx
+2026-06-12 18:06:36 [INFO ] User        : tds_etl_app
+2026-06-12 18:06:36 [INFO ] Schema Name : data_monitoring
+2026-06-12 18:06:36 [INFO ] Max Parallel: 0
+2026-06-12 18:06:36 [INFO ] ========================================
+2026-06-12 18:06:36 [INFO ] Executing process_metadata_md5_changes...
+2026-06-12 18:06:36 [INFO ]                   step_name                  |         result         |    duration     
+2026-06-12 18:06:36 [INFO ] ---------------------------------------------+------------------------+-----------------
+2026-06-12 18:06:37 [INFO ]  mode                                        | Subsequent Compare Run | 00:00:00
+2026-06-12 18:06:38 [INFO ]  prepare_previous_partitions                 | Kept _p7               | 00:00:00
+2026-06-12 18:06:39 [INFO ]  load_snapshot_table                         | snapshot_id: 8         | 00:00:00
+2026-06-12 18:08:14 [INFO ]  compare_load_md5_table_metadata             | Completed              | 00:01:35
+2026-06-12 18:09:04 [INFO ]  compare_load_md5_non_table_metadata         | Completed              | 00:00:50
+2026-06-12 18:09:05 [INFO ]  create_staging_partitions                   | Created _p8            | 00:00:00
+2026-06-12 18:09:06 [INFO ]  load_md5_metadata_staging_table_objects     | Completed              | 00:00:01
+2026-06-12 18:09:07 [INFO ]  load_md5_metadata_staging_non_table_objects | Completed              | 00:00:00
+2026-06-12 18:09:08 [INFO ]  drop_old_partitions                         | Kept _p8               | 00:00:00
+2026-06-12 18:09:08 [INFO ]  Previous snapshot partition was _p7; current snapshot partition is _p8.
+2026-06-12 18:09:09 [INFO ]  load_metadata_md5_metrics                   | Completed              | 00:00:00
+2026-06-12 18:09:09 [INFO ] Run completed: Fri Jun 12 18:09:09  2026
+2026-06-12 18:09:09 [INFO ] Total duration: 00:02:43
+
+2026-06-12 18:09:09 [INFO ] ========================================
+2026-06-12 18:09:55 [INFO ] ========================================
+2026-06-12 18:09:55 [INFO ] Run started : Fri Jun 12 18:09:55  2026
+2026-06-12 18:09:55 [INFO ] Section     : [database_dev_pth]
+2026-06-12 18:09:55 [INFO ] Host        : 10.50.168.126
+2026-06-12 18:09:55 [INFO ] Port        : 5432
+2026-06-12 18:09:55 [INFO ] Database    : rpx
+2026-06-12 18:09:55 [INFO ] User        : tds_etl_app
+2026-06-12 18:09:55 [INFO ] Schema Name : data_monitoring
+2026-06-12 18:09:55 [INFO ] Max Parallel: 0
+2026-06-12 18:09:55 [INFO ] ========================================
+2026-06-12 18:09:55 [INFO ] Executing process_metadata_md5_changes...
+2026-06-12 18:09:55 [INFO ]                   step_name                  |         result         |    duration     
+2026-06-12 18:09:55 [INFO ] ---------------------------------------------+------------------------+-----------------
+2026-06-12 18:09:56 [INFO ]  mode                                        | Subsequent Compare Run | 00:00:00
+2026-06-12 18:09:57 [INFO ]  prepare_previous_partitions                 | Kept _p8               | 00:00:00
+2026-06-12 18:09:58 [INFO ]  load_snapshot_table                         | snapshot_id: 9         | 00:00:00
+2026-06-12 18:10:13 [WARN ] Run failed. Cleaning up failed snapshot_id: 9...
+2026-06-12 18:10:13 [INFO ] Cleaned up failed snapshot_id: 9.
+2026-06-12 18:10:14 [ERROR] Batch failed: canceling statement due to lock timeout
+2026-06-12 18:13:24 [INFO ] ========================================
+2026-06-12 18:13:24 [INFO ] Run started : Fri Jun 12 18:13:24  2026
+2026-06-12 18:13:24 [INFO ] Section     : [database_dev_pth]
+2026-06-12 18:13:24 [INFO ] Host        : 10.50.168.126
+2026-06-12 18:13:24 [INFO ] Port        : 5432
+2026-06-12 18:13:24 [INFO ] Database    : rpx
+2026-06-12 18:13:24 [INFO ] User        : tds_etl_app
+2026-06-12 18:13:24 [INFO ] Schema Name : data_monitoring
+2026-06-12 18:13:24 [INFO ] Max Parallel: 0
+2026-06-12 18:13:24 [INFO ] ========================================
+2026-06-12 18:13:24 [INFO ] Executing process_metadata_md5_changes...
+2026-06-12 18:13:24 [INFO ]                   step_name                  |         result         |    duration     
+2026-06-12 18:13:24 [INFO ] ---------------------------------------------+------------------------+-----------------
+2026-06-12 18:13:25 [INFO ]  mode                                        | Subsequent Compare Run | 00:00:00
+2026-06-12 18:13:27 [INFO ]  prepare_previous_partitions                 | Kept _p8               | 00:00:00
+2026-06-12 18:13:27 [INFO ]  load_snapshot_table                         | snapshot_id: 9         | 00:00:00
+2026-06-12 18:14:58 [INFO ]  compare_load_md5_table_metadata             | Completed              | 00:01:31
+2026-06-12 18:15:49 [INFO ]  compare_load_md5_non_table_metadata         | Completed              | 00:00:50
+2026-06-12 18:15:49 [INFO ]  create_staging_partitions                   | Created _p9            | 00:00:00
+2026-06-12 18:15:50 [INFO ]  load_md5_metadata_staging_table_objects     | Completed              | 00:00:01
+2026-06-12 18:15:51 [INFO ]  load_md5_metadata_staging_non_table_objects | Completed              | 00:00:00
+2026-06-12 18:15:52 [INFO ]  drop_old_partitions                         | Kept _p9               | 00:00:00
+2026-06-12 18:15:52 [INFO ]  Previous snapshot partition was _p8; current snapshot partition is _p9.
+2026-06-12 18:15:53 [INFO ]  load_metadata_md5_metrics                   | Completed              | 00:00:00
+2026-06-12 18:15:53 [INFO ] NOTICE:  No changes detected -> Only base metrics inserted.
+2026-06-12 18:15:53 [INFO ] Run completed: Fri Jun 12 18:15:53  2026
+2026-06-12 18:15:53 [INFO ] Total duration: 00:02:39
+
+2026-06-12 18:15:53 [INFO ] ========================================
+2026-06-12 18:16:21 [INFO ] A successful run was already completed today. Skipping execution for today.

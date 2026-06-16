@@ -69,7 +69,6 @@ END $$;
 -- ------------------------------------------------------------
 DROP FUNCTION IF EXISTS create_staging_partitions(integer) RESTRICT;
 DROP FUNCTION IF EXISTS drop_old_staging_partitions(integer) RESTRICT;
-DROP FUNCTION IF EXISTS rollback_failed_snapshot(integer) RESTRICT;
 
 -- ------------------------------------------------------------
 -- Drop orchestration/load/compare functions

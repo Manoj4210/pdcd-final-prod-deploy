@@ -145,33 +145,6 @@ BEGIN
     END LOOP;
 END;
 $$;
--- Detaches and drops staging partitions for a failed snapshot_id and deletes the snapshot record
-CREATE OR REPLACE FUNCTION rollback_failed_snapshot(p_snapshot_id INT)
-RETURNS VOID LANGUAGE plpgsql AS $$
-DECLARE
-    v_part_table TEXT;
-    v_part_non_table TEXT;
-BEGIN
-    v_part_table := format('metadata_md5_staging_table_objects_p%s', p_snapshot_id);
-    v_part_non_table := format('metadata_md5_staging_non_table_objects_p%s', p_snapshot_id);
-    
-    -- Detach and drop table staging partition if it exists
-    IF to_regclass(v_part_table) IS NOT NULL THEN
-        EXECUTE format('ALTER TABLE metadata_md5_staging_table_objects DETACH PARTITION %I', v_part_table);
-        EXECUTE format('DROP TABLE IF EXISTS %I', v_part_table);
-    END IF;
-    
-    -- Detach and drop non-table staging partition if it exists
-    IF to_regclass(v_part_non_table) IS NOT NULL THEN
-        EXECUTE format('ALTER TABLE metadata_md5_staging_non_table_objects DETACH PARTITION %I', v_part_non_table);
-        EXECUTE format('DROP TABLE IF EXISTS %I', v_part_non_table);
-    END IF;
-
-    -- Delete the snapshot record (this cascades to changes and metrics tables)
-    DELETE FROM metadata_snapshot WHERE snapshot_id = p_snapshot_id;
-END;
-$$;
-
 
 --=================================================
 -- Table: metadata_md5_metrics
@@ -179,36 +152,11 @@ $$;
 
 CREATE TABLE IF NOT EXISTS metadata_md5_metrics (
     metrics_id     BIGSERIAL PRIMARY KEY,
-    snapshot_id    INT NOT NULL REFERENCES metadata_snapshot(snapshot_id) ON DELETE CASCADE,
+    snapshot_id    INT NOT NULL REFERENCES metadata_snapshot(snapshot_id),
     metric_name    TEXT NOT NULL,
     metric_value   INT NOT NULL,
     metrics_time   TIMESTAMP NOT NULL DEFAULT clock_timestamp()
 );
-
--- Ensure metadata_md5_metrics has ON DELETE CASCADE for its foreign key reference to metadata_snapshot
-DO $$
-DECLARE
-    v_constraint_name TEXT;
-BEGIN
-    SELECT con.conname INTO v_constraint_name
-    FROM pg_constraint con
-    JOIN pg_class rel ON rel.oid = con.conrelid
-    JOIN pg_namespace nsp ON nsp.oid = rel.relnamespace
-    WHERE rel.relname = 'metadata_md5_metrics'
-      AND con.contype = 'f'
-      AND con.confrelid = 'metadata_snapshot'::regclass;
-
-    IF v_constraint_name IS NOT NULL THEN
-        EXECUTE format('ALTER TABLE metadata_md5_metrics DROP CONSTRAINT %I', v_constraint_name);
-    END IF;
-    
-    ALTER TABLE metadata_md5_metrics ADD CONSTRAINT metadata_md5_metrics_snapshot_id_fkey 
-        FOREIGN KEY (snapshot_id) REFERENCES metadata_snapshot(snapshot_id) ON DELETE CASCADE;
-EXCEPTION
-    WHEN OTHERS THEN
-        NULL;
-END $$;
-
 
 -- Prevent duplicate metrics per snapshot
 CREATE UNIQUE INDEX IF NOT EXISTS ux_md5_metrics_snapshot_metric
@@ -1938,50 +1886,19 @@ $function$;
 -- =====================================
 -- load_snapshot_table.sql
 -- =====================================
--- CREATE OR REPLACE FUNCTION load_snapshot_table()
---  RETURNS TABLE(snapshot_id integer, snapshot_name text, processed_time timestamp without time zone)
---  LANGUAGE sql
--- AS $function$
---     INSERT INTO metadata_snapshot (snapshot_name)
---     VALUES (
---         CONCAT_WS('_',
---             'snapshot',
---             COALESCE((SELECT MAX(snapshot_id) FROM metadata_snapshot), 0) + 1,
---             TO_CHAR(clock_timestamp(), 'YYYY_MM_DD_HH24MISS')
---         )
---     )
---     RETURNING snapshot_id, snapshot_name, processed_time;
--- $function$;
-
 CREATE OR REPLACE FUNCTION load_snapshot_table()
  RETURNS TABLE(snapshot_id integer, snapshot_name text, processed_time timestamp without time zone)
- LANGUAGE plpgsql
+ LANGUAGE sql
 AS $function$
-DECLARE
-    v_next_id integer;
-    v_name text;
-    v_time timestamp;
-BEGIN
-    -- Calculate the next sequential snapshot_id based on actual rows in the table
-    SELECT COALESCE(MAX(ms.snapshot_id), 0) + 1 INTO v_next_id FROM metadata_snapshot ms;
-    
-    v_name := CONCAT_WS('_',
-        'snapshot',
-        v_next_id,
-        TO_CHAR(clock_timestamp(), 'YYYY_MM_DD_HH24MISS')
-    );
-    
-    INSERT INTO metadata_snapshot (snapshot_id, snapshot_name)
-    OVERRIDING SYSTEM VALUE
-    VALUES (v_next_id, v_name)
-    RETURNING metadata_snapshot.snapshot_id, metadata_snapshot.snapshot_name, metadata_snapshot.processed_time
-    INTO v_next_id, v_name, v_time;
-
-    -- Reset the sequence so it stays in sync with the table's max ID
-    PERFORM setval(pg_get_serial_sequence('metadata_snapshot', 'snapshot_id'), v_next_id, true);
-
-    RETURN QUERY SELECT v_next_id, v_name, v_time;
-END;
+    INSERT INTO metadata_snapshot (snapshot_name)
+    VALUES (
+        CONCAT_WS('_',
+            'snapshot',
+            COALESCE((SELECT MAX(snapshot_id) FROM metadata_snapshot), 0) + 1,
+            TO_CHAR(clock_timestamp(), 'YYYY_MM_DD_HH24MISS')
+        )
+    )
+    RETURNING snapshot_id, snapshot_name, processed_time;
 $function$;
 
 

@@ -1938,21 +1938,6 @@ $function$;
 -- =====================================
 -- load_snapshot_table.sql
 -- =====================================
--- CREATE OR REPLACE FUNCTION load_snapshot_table()
---  RETURNS TABLE(snapshot_id integer, snapshot_name text, processed_time timestamp without time zone)
---  LANGUAGE sql
--- AS $function$
---     INSERT INTO metadata_snapshot (snapshot_name)
---     VALUES (
---         CONCAT_WS('_',
---             'snapshot',
---             COALESCE((SELECT MAX(snapshot_id) FROM metadata_snapshot), 0) + 1,
---             TO_CHAR(clock_timestamp(), 'YYYY_MM_DD_HH24MISS')
---         )
---     )
---     RETURNING snapshot_id, snapshot_name, processed_time;
--- $function$;
-
 CREATE OR REPLACE FUNCTION load_snapshot_table()
  RETURNS TABLE(snapshot_id integer, snapshot_name text, processed_time timestamp without time zone)
  LANGUAGE plpgsql

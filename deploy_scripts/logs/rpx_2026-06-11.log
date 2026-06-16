@@ -1,0 +1,197 @@
+========================================
+Run started : Thu Jun 11 11:08:44  2026
+Section     : [database_2]
+Host        : 10.50.168.126
+Port        : 5432
+Database    : rpx
+User        : tds_etl_app
+Schema Name : data_monitoring
+Active Conns: 1
+Lock Timeout: 5s
+Stmt Timeout: 45min
+Max Parallel: 0
+========================================
+Executing process_metadata_md5_changes...
+                  step_name                  |         result         |    duration     
+---------------------------------------------+------------------------+-----------------
+ mode                                        | Initial Load           | 00:00:00
+ load_snapshot_table                         | snapshot_id: 1         | 00:00:00
+ create_staging_partitions                   | Created _p1            | 00:00:00
+ load_md5_metadata_table                     | Completed              | 00:02:05
+ load_md5_metadata_staging_table_objects     | Completed              | 00:00:01
+ load_md5_metadata_staging_non_table_objects | Completed              | 00:00:00
+ analyze_tables                              | Completed              | 00:00:04
+ load_metadata_md5_metrics                   | Completed              | 00:00:06
+Run completed: Thu Jun 11 11:11:06  2026
+Total duration: 00:02:31
+
+========================================
+========================================
+Run started : Thu Jun 11 20:16:32  2026
+Section     : [database_2]
+Host        : 10.50.168.126
+Port        : 5432
+Database    : rpx
+User        : tds_etl_app
+Schema Name : data_monitoring
+Active Conns: 1
+Lock Timeout: 5s
+Stmt Timeout: 45min
+Max Parallel: 0
+========================================
+Executing process_metadata_md5_changes...
+                  step_name                  |         result         |    duration     
+---------------------------------------------+------------------------+-----------------
+ mode                                        | Subsequent Compare Run | 00:00:00
+ prepare_previous_partitions                 | Kept _p1               | 00:00:00
+ load_snapshot_table                         | snapshot_id: 2         | 00:00:00
+ compare_load_md5_table_metadata             | Completed              | 00:01:39
+ compare_load_md5_non_table_metadata         | Completed              | 00:00:52
+ create_staging_partitions                   | Created _p2            | 00:00:00
+ load_md5_metadata_staging_table_objects     | Completed              | 00:00:01
+ load_md5_metadata_staging_non_table_objects | Completed              | 00:00:00
+ drop_old_partitions                         | Kept _p2               | 00:00:00
+ Previous snapshot partition was _p1; current snapshot partition is _p2.
+ load_metadata_md5_metrics                   | Completed              | 00:00:00
+Run completed: Thu Jun 11 20:19:11  2026
+Total duration: 00:02:48
+
+========================================
+========================================
+Run started : Thu Jun 11 20:30:22  2026
+Section     : [database_2]
+Host        : 10.50.168.126
+Port        : 5432
+Database    : rpx
+User        : tds_etl_app
+Schema Name : data_monitoring
+Active Conns: 1
+Lock Timeout: 5s
+Stmt Timeout: 45min
+Max Parallel: 0
+========================================
+Executing process_metadata_md5_changes...
+                  step_name                  |         result         |    duration     
+---------------------------------------------+------------------------+-----------------
+WARN: Active AccessExclusiveLock on: data_tools.metadata_md5_changes. Waiting 10s...
+WARN: Active AccessExclusiveLock on: data_tools.metadata_md5_changes. Waiting 10s...
+WARN: Active AccessExclusiveLock on: data_tools.metadata_md5_changes. Waiting 10s...
+WARN: Active AccessExclusiveLock on: data_tools.metadata_md5_changes. Waiting 10s...
+WARN: Active AccessExclusiveLock on: data_tools.metadata_md5_changes. Waiting 10s...
+ mode                                        | Subsequent Compare Run | 00:00:00
+ prepare_previous_partitions                 | Kept _p2               | 00:00:00
+ load_snapshot_table                         | snapshot_id: 3         | 00:00:00
+WARNING: Run failed. Cleaning up failed snapshot_id: 3...
+Cleaned up failed snapshot_id: 3.
+ERROR: [database_2] Batch failed: canceling statement due to lock timeout
+CONTEXT:  SQL function "fetch_index_details" statement 1
+SQL function "compute_indexes_md5" statement 1
+SQL statement "CREATE TEMP TABLE temp_current_table_metadata AS
+    SELECT DISTINCT * FROM compute_columns_md5(p_table_list)
+    UNION ALL SELECT DISTINCT * FROM compute_constraints_md5(p_table_list)
+    UNION ALL SELECT DISTINCT * FROM compute_indexes_md5(p_table_list)
+    UNION ALL SELECT DISTINCT * FROM compute_references_md5(p_table_list)
+    UNION ALL SELECT DISTINCT * FROM compute_triggers_md5(p_table_list)
+    UNION ALL SELECT DISTINCT * FROM compute_sequences_md5(p_table_list) seq WHERE seq.object_type = 'Table'"
+PL/pgSQL function compare_load_md5_table_metadata(text[]) line 16 at SQL statement
+
+========================================
+Run started : Thu Jun 11 20:35:04  2026
+Section     : [database_2]
+Host        : 10.50.168.126
+Port        : 5432
+Database    : rpx
+User        : tds_etl_app
+Schema Name : data_monitoring
+Active Conns: 1
+Lock Timeout: 5s
+Stmt Timeout: 45min
+Max Parallel: 0
+========================================
+Executing process_metadata_md5_changes...
+                  step_name                  |         result         |    duration     
+---------------------------------------------+------------------------+-----------------
+ mode                                        | Subsequent Compare Run | 00:00:00
+ prepare_previous_partitions                 | Kept _p2               | 00:00:00
+ load_snapshot_table                         | snapshot_id: 4         | 00:00:00
+ compare_load_md5_table_metadata             | Completed              | 00:01:29
+ compare_load_md5_non_table_metadata         | Completed              | 00:00:45
+ create_staging_partitions                   | Created _p4            | 00:00:00
+ load_md5_metadata_staging_table_objects     | Completed              | 00:00:01
+ load_md5_metadata_staging_non_table_objects | Completed              | 00:00:00
+ drop_old_partitions                         | Kept _p4               | 00:00:00
+ Previous snapshot partition was _p2; current snapshot partition is _p4.
+ load_metadata_md5_metrics                   | Completed              | 00:00:00
+NOTICE:  No changes detected -> Only base metrics inserted.
+Run completed: Thu Jun 11 20:37:26  2026
+Total duration: 00:02:32
+
+========================================
+========================================
+Run started : Thu Jun 11 20:50:09  2026
+Section     : [database_2]
+Host        : 10.50.168.126
+Port        : 5432
+Database    : rpx
+User        : tds_etl_app
+Schema Name : data_monitoring
+Active Conns: 1
+Lock Timeout: 5s
+Stmt Timeout: 45min
+Max Parallel: 0
+========================================
+Executing process_metadata_md5_changes...
+                  step_name                  |         result         |    duration     
+---------------------------------------------+------------------------+-----------------
+WARN: Active AccessExclusiveLock on: data_tools.metadata_md5_changes. Waiting 10s...
+WARN: Active AccessExclusiveLock on: data_tools.metadata_md5_changes. Waiting 10s...
+WARN: Active AccessExclusiveLock on: data_tools.metadata_md5_changes. Waiting 10s...
+ mode                                        | Subsequent Compare Run | 00:00:00
+ prepare_previous_partitions                 | Kept _p4               | 00:00:00
+ load_snapshot_table                         | snapshot_id: 5         | 00:00:00
+WARNING: Run failed. Cleaning up failed snapshot_id: 5...
+Cleaned up failed snapshot_id: 5.
+ERROR: [database_2] Batch failed: canceling statement due to lock timeout
+CONTEXT:  SQL function "fetch_index_details" statement 1
+SQL function "compute_indexes_md5" statement 1
+SQL statement "CREATE TEMP TABLE temp_current_table_metadata AS
+    SELECT DISTINCT * FROM compute_columns_md5(p_table_list)
+    UNION ALL SELECT DISTINCT * FROM compute_constraints_md5(p_table_list)
+    UNION ALL SELECT DISTINCT * FROM compute_indexes_md5(p_table_list)
+    UNION ALL SELECT DISTINCT * FROM compute_references_md5(p_table_list)
+    UNION ALL SELECT DISTINCT * FROM compute_triggers_md5(p_table_list)
+    UNION ALL SELECT DISTINCT * FROM compute_sequences_md5(p_table_list) seq WHERE seq.object_type = 'Table'"
+PL/pgSQL function compare_load_md5_table_metadata(text[]) line 16 at SQL statement
+
+========================================
+Run started : Thu Jun 11 20:52:03  2026
+Section     : [database_2]
+Host        : 10.50.168.126
+Port        : 5432
+Database    : rpx
+User        : tds_etl_app
+Schema Name : data_monitoring
+Active Conns: 1
+Lock Timeout: 5s
+Stmt Timeout: 45min
+Max Parallel: 0
+========================================
+Executing process_metadata_md5_changes...
+                  step_name                  |         result         |    duration     
+---------------------------------------------+------------------------+-----------------
+ mode                                        | Subsequent Compare Run | 00:00:00
+ prepare_previous_partitions                 | Kept _p4               | 00:00:00
+ load_snapshot_table                         | snapshot_id: 5         | 00:00:00
+ compare_load_md5_table_metadata             | Completed              | 00:01:28
+ compare_load_md5_non_table_metadata         | Completed              | 00:00:45
+ create_staging_partitions                   | Created _p5            | 00:00:00
+ load_md5_metadata_staging_table_objects     | Completed              | 00:00:01
+ load_md5_metadata_staging_non_table_objects | Completed              | 00:00:00
+ drop_old_partitions                         | Kept _p5               | 00:00:00
+ Previous snapshot partition was _p4; current snapshot partition is _p5.
+ load_metadata_md5_metrics                   | Completed              | 00:00:00
+NOTICE:  No changes detected -> Only base metrics inserted.
+Run completed: Thu Jun 11 20:54:24  2026
+Total duration: 00:02:29
+
+========================================

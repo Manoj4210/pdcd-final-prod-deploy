@@ -1,0 +1,230 @@
+========================================
+Run started : Fri Jun 12 13:18:05  2026
+Section     : [test_database]
+Host        : localhost
+Port        : 5432
+Database    : blocking_check
+User        : manoj_anumalla
+Schema Name : data_monitoring
+Active Conns: 1
+Lock Timeout: 5s
+Stmt Timeout: 45min
+Max Parallel: 0
+========================================
+Executing process_metadata_md5_changes...
+                  step_name                  |         result         |    duration     
+---------------------------------------------+------------------------+-----------------
+ mode                                        | Initial Load           | 00:00:00
+ delete_orphan_initial_data                  | Completed              | 00:00:00
+ load_snapshot_table                         | snapshot_id: 1         | 00:00:00
+ create_staging_partitions                   | Created _p1            | 00:00:00
+ load_md5_metadata_table                     | Completed              | 00:00:00
+ load_md5_metadata_staging_table_objects     | Completed              | 00:00:00
+ load_md5_metadata_staging_non_table_objects | Completed              | 00:00:00
+ analyze_tables                              | Completed              | 00:00:00
+ load_metadata_md5_metrics                   | Completed              | 00:00:00
+Run completed: Fri Jun 12 13:18:06  2026
+Total duration: 00:00:01
+
+========================================
+========================================
+Run started : Fri Jun 12 13:18:06  2026
+Section     : [test_database]
+Host        : localhost
+Port        : 5432
+Database    : blocking_check
+User        : manoj_anumalla
+Schema Name : data_monitoring
+Active Conns: 1
+Lock Timeout: 5s
+Stmt Timeout: 45min
+Max Parallel: 0
+========================================
+Executing process_metadata_md5_changes...
+                  step_name                  |         result         |    duration     
+---------------------------------------------+------------------------+-----------------
+ mode                                        | Subsequent Compare Run | 00:00:00
+ prepare_previous_partitions                 | Kept _p1               | 00:00:00
+ load_snapshot_table                         | snapshot_id: 2         | 00:00:00
+ compare_load_md5_table_metadata             | Completed              | 00:00:00
+ compare_load_md5_non_table_metadata         | Completed              | 00:00:00
+ create_staging_partitions                   | Created _p2            | 00:00:00
+ load_md5_metadata_staging_table_objects     | Completed              | 00:00:00
+ load_md5_metadata_staging_non_table_objects | Completed              | 00:00:00
+ drop_old_partitions                         | Kept _p2               | 00:00:00
+ Previous snapshot partition was _p1; current snapshot partition is _p2.
+ load_metadata_md5_metrics                   | Completed              | 00:00:00
+NOTICE:  No changes detected -> Only base metrics inserted.
+Run completed: Fri Jun 12 13:18:06  2026
+Total duration: 00:00:00
+
+========================================
+========================================
+Run started : Fri Jun 12 13:18:06  2026
+Section     : [test_database]
+Host        : localhost
+Port        : 5432
+Database    : blocking_check
+User        : manoj_anumalla
+Schema Name : data_monitoring
+Active Conns: 1
+Lock Timeout: 5s
+Stmt Timeout: 45min
+Max Parallel: 0
+========================================
+Executing process_metadata_md5_changes...
+                  step_name                  |         result         |    duration     
+---------------------------------------------+------------------------+-----------------
+ mode                                        | Subsequent Compare Run | 00:00:00
+ prepare_previous_partitions                 | Kept _p2               | 00:00:00
+ load_snapshot_table                         | snapshot_id: 3         | 00:00:00
+2026-06-12 13:18:06 [WARN ] [test_database] Run failed. Cleaning up failed snapshot_id: 3...
+2026-06-12 13:18:06 [INFO ] [test_database] Cleaned up failed snapshot_id: 3.
+2026-06-12 13:18:06 [ERROR] [test_database] Batch failed: canceling statement due to lock timeout
+========================================
+Run started : Fri Jun 12 13:18:07  2026
+Section     : [test_database]
+Host        : localhost
+Port        : 5432
+Database    : blocking_check
+User        : manoj_anumalla
+Schema Name : data_monitoring
+Active Conns: 1
+Lock Timeout: 5s
+Stmt Timeout: 45min
+Max Parallel: 0
+========================================
+Executing process_metadata_md5_changes...
+                  step_name                  |         result         |    duration     
+---------------------------------------------+------------------------+-----------------
+ mode                                        | Subsequent Compare Run | 00:00:00
+ prepare_previous_partitions                 | Kept _p2               | 00:00:00
+ load_snapshot_table                         | snapshot_id: 3         | 00:00:00
+ compare_load_md5_table_metadata             | Completed              | 00:00:00
+ compare_load_md5_non_table_metadata         | Completed              | 00:00:00
+ create_staging_partitions                   | Created _p3            | 00:00:00
+ load_md5_metadata_staging_table_objects     | Completed              | 00:00:00
+ load_md5_metadata_staging_non_table_objects | Completed              | 00:00:00
+ drop_old_partitions                         | Kept _p3               | 00:00:00
+ Previous snapshot partition was _p2; current snapshot partition is _p3.
+ load_metadata_md5_metrics                   | Completed              | 00:00:00
+NOTICE:  No changes detected -> Only base metrics inserted.
+Run completed: Fri Jun 12 13:18:07  2026
+Total duration: 00:00:00
+
+========================================
+2026-06-12 13:29:02 [INFO ] ========================================
+2026-06-12 13:29:02 [INFO ] Run started : Fri Jun 12 13:29:02  2026
+2026-06-12 13:29:02 [INFO ] Section     : [test_database]
+2026-06-12 13:29:02 [INFO ] Host        : localhost
+2026-06-12 13:29:02 [INFO ] Port        : 5432
+2026-06-12 13:29:02 [INFO ] Database    : blocking_check
+2026-06-12 13:29:02 [INFO ] User        : manoj_anumalla
+2026-06-12 13:29:02 [INFO ] Schema Name : data_monitoring
+2026-06-12 13:29:02 [INFO ] Active Conns: 1
+2026-06-12 13:29:02 [INFO ] Lock Timeout: 5s
+2026-06-12 13:29:02 [INFO ] Stmt Timeout: 45min
+2026-06-12 13:29:02 [INFO ] Max Parallel: 0
+2026-06-12 13:29:02 [INFO ] ========================================
+2026-06-12 13:29:02 [INFO ] Executing process_metadata_md5_changes...
+2026-06-12 13:29:02 [INFO ]                   step_name                  |         result         |    duration     
+2026-06-12 13:29:02 [INFO ] ---------------------------------------------+------------------------+-----------------
+2026-06-12 13:29:02 [INFO ]  mode                                        | Initial Load           | 00:00:00
+2026-06-12 13:29:02 [INFO ]  delete_orphan_initial_data                  | Completed              | 00:00:00
+2026-06-12 13:29:02 [INFO ]  load_snapshot_table                         | snapshot_id: 1         | 00:00:00
+2026-06-12 13:29:02 [INFO ]  create_staging_partitions                   | Created _p1            | 00:00:00
+2026-06-12 13:29:03 [INFO ]  load_md5_metadata_table                     | Completed              | 00:00:00
+2026-06-12 13:29:03 [INFO ]  load_md5_metadata_staging_table_objects     | Completed              | 00:00:00
+2026-06-12 13:29:03 [INFO ]  load_md5_metadata_staging_non_table_objects | Completed              | 00:00:00
+2026-06-12 13:29:03 [INFO ]  analyze_tables                              | Completed              | 00:00:00
+2026-06-12 13:29:03 [INFO ]  load_metadata_md5_metrics                   | Completed              | 00:00:00
+2026-06-12 13:29:03 [INFO ] Run completed: Fri Jun 12 13:29:03  2026
+2026-06-12 13:29:03 [INFO ] Total duration: 00:00:00
+2026-06-12 13:29:03 [INFO ] 
+2026-06-12 13:29:03 [INFO ] ========================================
+2026-06-12 13:29:03 [INFO ] ========================================
+2026-06-12 13:29:03 [INFO ] Run started : Fri Jun 12 13:29:03  2026
+2026-06-12 13:29:03 [INFO ] Section     : [test_database]
+2026-06-12 13:29:03 [INFO ] Host        : localhost
+2026-06-12 13:29:03 [INFO ] Port        : 5432
+2026-06-12 13:29:03 [INFO ] Database    : blocking_check
+2026-06-12 13:29:03 [INFO ] User        : manoj_anumalla
+2026-06-12 13:29:03 [INFO ] Schema Name : data_monitoring
+2026-06-12 13:29:03 [INFO ] Active Conns: 1
+2026-06-12 13:29:03 [INFO ] Lock Timeout: 5s
+2026-06-12 13:29:03 [INFO ] Stmt Timeout: 45min
+2026-06-12 13:29:03 [INFO ] Max Parallel: 0
+2026-06-12 13:29:03 [INFO ] ========================================
+2026-06-12 13:29:03 [INFO ] Executing process_metadata_md5_changes...
+2026-06-12 13:29:03 [INFO ]                   step_name                  |         result         |    duration     
+2026-06-12 13:29:03 [INFO ] ---------------------------------------------+------------------------+-----------------
+2026-06-12 13:29:03 [INFO ]  mode                                        | Subsequent Compare Run | 00:00:00
+2026-06-12 13:29:03 [INFO ]  prepare_previous_partitions                 | Kept _p1               | 00:00:00
+2026-06-12 13:29:03 [INFO ]  load_snapshot_table                         | snapshot_id: 2         | 00:00:00
+2026-06-12 13:29:03 [INFO ]  compare_load_md5_table_metadata             | Completed              | 00:00:00
+2026-06-12 13:29:04 [INFO ]  compare_load_md5_non_table_metadata         | Completed              | 00:00:00
+2026-06-12 13:29:04 [INFO ]  create_staging_partitions                   | Created _p2            | 00:00:00
+2026-06-12 13:29:04 [INFO ]  load_md5_metadata_staging_table_objects     | Completed              | 00:00:00
+2026-06-12 13:29:04 [INFO ]  load_md5_metadata_staging_non_table_objects | Completed              | 00:00:00
+2026-06-12 13:29:04 [INFO ]  drop_old_partitions                         | Kept _p2               | 00:00:00
+2026-06-12 13:29:04 [INFO ]  Previous snapshot partition was _p1; current snapshot partition is _p2.
+2026-06-12 13:29:04 [INFO ]  load_metadata_md5_metrics                   | Completed              | 00:00:00
+2026-06-12 13:29:04 [INFO ] NOTICE:  No changes detected -> Only base metrics inserted.
+2026-06-12 13:29:04 [INFO ] Run completed: Fri Jun 12 13:29:04  2026
+2026-06-12 13:29:04 [INFO ] Total duration: 00:00:00
+2026-06-12 13:29:04 [INFO ] 
+2026-06-12 13:29:04 [INFO ] ========================================
+2026-06-12 13:29:04 [INFO ] ========================================
+2026-06-12 13:29:04 [INFO ] Run started : Fri Jun 12 13:29:04  2026
+2026-06-12 13:29:04 [INFO ] Section     : [test_database]
+2026-06-12 13:29:04 [INFO ] Host        : localhost
+2026-06-12 13:29:04 [INFO ] Port        : 5432
+2026-06-12 13:29:04 [INFO ] Database    : blocking_check
+2026-06-12 13:29:04 [INFO ] User        : manoj_anumalla
+2026-06-12 13:29:04 [INFO ] Schema Name : data_monitoring
+2026-06-12 13:29:04 [INFO ] Active Conns: 1
+2026-06-12 13:29:04 [INFO ] Lock Timeout: 5s
+2026-06-12 13:29:04 [INFO ] Stmt Timeout: 45min
+2026-06-12 13:29:04 [INFO ] Max Parallel: 0
+2026-06-12 13:29:04 [INFO ] ========================================
+2026-06-12 13:29:04 [INFO ] Executing process_metadata_md5_changes...
+2026-06-12 13:29:04 [INFO ]                   step_name                  |         result         |    duration     
+2026-06-12 13:29:04 [INFO ] ---------------------------------------------+------------------------+-----------------
+2026-06-12 13:29:04 [INFO ]  mode                                        | Subsequent Compare Run | 00:00:00
+2026-06-12 13:29:04 [INFO ]  prepare_previous_partitions                 | Kept _p2               | 00:00:00
+2026-06-12 13:29:04 [INFO ]  load_snapshot_table                         | snapshot_id: 3         | 00:00:00
+2026-06-12 13:29:04 [WARN ] [test_database] Run failed. Cleaning up failed snapshot_id: 3...
+2026-06-12 13:29:04 [INFO ] [test_database] Cleaned up failed snapshot_id: 3.
+2026-06-12 13:29:04 [ERROR] [test_database] Batch failed: canceling statement due to lock timeout
+2026-06-12 13:29:04 [INFO ] ========================================
+2026-06-12 13:29:04 [INFO ] Run started : Fri Jun 12 13:29:04  2026
+2026-06-12 13:29:04 [INFO ] Section     : [test_database]
+2026-06-12 13:29:04 [INFO ] Host        : localhost
+2026-06-12 13:29:04 [INFO ] Port        : 5432
+2026-06-12 13:29:04 [INFO ] Database    : blocking_check
+2026-06-12 13:29:04 [INFO ] User        : manoj_anumalla
+2026-06-12 13:29:04 [INFO ] Schema Name : data_monitoring
+2026-06-12 13:29:04 [INFO ] Active Conns: 1
+2026-06-12 13:29:04 [INFO ] Lock Timeout: 5s
+2026-06-12 13:29:04 [INFO ] Stmt Timeout: 45min
+2026-06-12 13:29:04 [INFO ] Max Parallel: 0
+2026-06-12 13:29:04 [INFO ] ========================================
+2026-06-12 13:29:04 [INFO ] Executing process_metadata_md5_changes...
+2026-06-12 13:29:04 [INFO ]                   step_name                  |         result         |    duration     
+2026-06-12 13:29:04 [INFO ] ---------------------------------------------+------------------------+-----------------
+2026-06-12 13:29:04 [INFO ]  mode                                        | Subsequent Compare Run | 00:00:00
+2026-06-12 13:29:04 [INFO ]  prepare_previous_partitions                 | Kept _p2               | 00:00:00
+2026-06-12 13:29:04 [INFO ]  load_snapshot_table                         | snapshot_id: 3         | 00:00:00
+2026-06-12 13:29:04 [INFO ]  compare_load_md5_table_metadata             | Completed              | 00:00:00
+2026-06-12 13:29:04 [INFO ]  compare_load_md5_non_table_metadata         | Completed              | 00:00:00
+2026-06-12 13:29:04 [INFO ]  create_staging_partitions                   | Created _p3            | 00:00:00
+2026-06-12 13:29:04 [INFO ]  load_md5_metadata_staging_table_objects     | Completed              | 00:00:00
+2026-06-12 13:29:04 [INFO ]  load_md5_metadata_staging_non_table_objects | Completed              | 00:00:00
+2026-06-12 13:29:04 [INFO ]  drop_old_partitions                         | Kept _p3               | 00:00:00
+2026-06-12 13:29:04 [INFO ]  Previous snapshot partition was _p2; current snapshot partition is _p3.
+2026-06-12 13:29:04 [INFO ]  load_metadata_md5_metrics                   | Completed              | 00:00:00
+2026-06-12 13:29:04 [INFO ] NOTICE:  No changes detected -> Only base metrics inserted.
+2026-06-12 13:29:04 [INFO ] Run completed: Fri Jun 12 13:29:04  2026
+2026-06-12 13:29:04 [INFO ] Total duration: 00:00:00
+2026-06-12 13:29:04 [INFO ] 
+2026-06-12 13:29:04 [INFO ] ========================================

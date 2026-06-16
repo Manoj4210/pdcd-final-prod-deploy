@@ -9,7 +9,6 @@ objects to be deployed in the target schema.
 
 import configparser
 import os
-import shutil
 import sys
 import time
 from contextlib import contextmanager
@@ -32,9 +31,6 @@ RETRY_DELAY_SECONDS = int(os.getenv("PDCD_RETRY_DELAY_SECONDS", "180"))
 MAX_RETRIES = int(os.getenv("PDCD_MAX_RETRIES", "3"))
 ALLOW_INITIAL_CLEANUP = os.getenv(
     "PDCD_ALLOW_INITIAL_CLEANUP", "false").lower() == "true"
-# Configure lock waiting thresholds
-MAX_LOCK_WAIT_SECONDS = int(os.getenv("PDCD_MAX_LOCK_WAIT_SECONDS", "600"))
-LOCK_CHECK_INTERVAL_SECONDS = int(os.getenv("PDCD_LOCK_CHECK_INTERVAL_SECONDS", "10"))
 
 
 def format_duration(seconds):
@@ -43,62 +39,22 @@ def format_duration(seconds):
     minutes, seconds = divmod(remainder, 60)
     return f"{hours:02}:{minutes:02}:{seconds:02}"
 
-def format_error_message(exc):
-    """Extracts the primary error message from an exception, stripping multiline SQL contexts."""
-    return str(exc).split('\n')[0].strip()
-
 
 class LogWriter:
-    def __init__(self, path, max_bytes=10*1024*1024, backup_count=5):
-        self.path = path
-        self.max_bytes = max_bytes
-        self.backup_count = backup_count
-
-        # Rotate logs if active file is too large
-        if os.path.exists(self.path) and os.path.getsize(self.path) >= self.max_bytes:
-            self.rotate_logs()
-
-        self.handle = open(self.path, "a", encoding="utf-8", buffering=1)
-
-    def rotate_logs(self):
-        base, ext = os.path.splitext(self.path)
-        for i in range(self.backup_count - 1, 0, -1):
-            src = f"{base}_{i}{ext}"
-            dst = f"{base}_{i+1}{ext}"
-            if os.path.exists(src):
-                try:
-                    shutil.move(src, dst)
-                except Exception:
-                    pass
-        dst = f"{base}_1{ext}"
-        try:
-            shutil.move(self.path, dst)
-        except Exception:
-            pass
+    def __init__(self, path):
+        self.handle = open(path, "a", buffering=1)
 
     def write(self, message=""):
         self.handle.write(f"{message}\n")
         self.handle.flush()
 
-    def log(self, level, section, message):
-        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        log_line = f"{timestamp} [{level:<5}] {message}"
-        self.write(log_line)
-        if level in ("ERROR", "CRITICAL"):
-            print(log_line, file=sys.stderr)
-        else:
-            print(log_line)
+    def step_header(self):
+        self.write(f"{'step_name':^45}|{'result':^24}|{'duration':^17}")
+        self.write(f"{'-' * 45}+{'-' * 24}+{'-' * 17}")
 
-    def step_header(self, section):
-        header_text = f"{'step_name':^45}|{'result':^24}|{'duration':^17}"
-        separator = f"{'-' * 45}+{'-' * 24}+{'-' * 17}"
-        self.log("INFO", section, header_text)
-        self.log("INFO", section, separator)
-
-    def step(self, section, step_name, result, started_at):
+    def step(self, step_name, result, started_at):
         duration = format_duration(time.monotonic() - started_at)
-        step_text = f" {step_name:<44}| {result:<23}| {duration}"
-        self.log("INFO", section, step_text)
+        self.write(f" {step_name:<44}| {result:<23}| {duration}")
 
     def close(self):
         self.handle.close()
@@ -113,7 +69,6 @@ class PDCDPartitionRunner:
         self.user = config.get("user")
         self.password = config.get("password")
         self.schema_name = config.get("schema_name")
-        self.once_daily = config.get("once_daily", "false").lower() == "true" or os.getenv("PDCD_ONCE_DAILY", "false").lower() == "true"
         self.conn_pool = None
         self.log = None
 
@@ -189,12 +144,12 @@ class PDCDPartitionRunner:
     def run_step(self, conn, step_name, query, params=None, result="Completed"):
         started_at = time.monotonic()
         self.execute(conn, query, params)
-        self.log.step(self.section, step_name, result, started_at)
+        self.log.step(step_name, result, started_at)
 
     def run_scalar_step(self, conn, step_name, query, params=None, result_prefix="Completed"):
         started_at = time.monotonic()
         value = self.scalar(conn, query, params)
-        self.log.step(self.section, step_name, f"{result_prefix}: {value}", started_at)
+        self.log.step(step_name, f"{result_prefix}: {value}", started_at)
         return value
 
     def effective_schemas_cte(self):
@@ -212,7 +167,6 @@ class PDCDPartitionRunner:
         required_functions = [
             "create_staging_partitions",
             "drop_old_staging_partitions",
-            "rollback_failed_snapshot",
         ]
         for function_name in required_functions:
             exists = self.scalar(
@@ -247,67 +201,11 @@ class PDCDPartitionRunner:
                     f"Required partitioned table missing: {self.schema_name}.{table_name}"
                 )
 
-    def wait_for_exclusive_locks(self, conn, max_wait_seconds=MAX_LOCK_WAIT_SECONDS, check_interval_seconds=LOCK_CHECK_INTERVAL_SECONDS):
-        start_time = time.monotonic()
-        query = """
-            SELECT COALESCE(string_agg(n.nspname || '.' || c.relname, ', '), '')
-            FROM pg_locks l
-            JOIN pg_class c ON c.oid = l.relation
-            JOIN pg_namespace n ON n.oid = c.relnamespace
-            WHERE l.mode = 'AccessExclusiveLock'
-              AND n.nspname NOT IN ('pg_catalog', 'information_schema', %s)
-              AND n.nspname NOT LIKE 'pg_%%'
-              AND l.granted = true;
-        """
-        while True:
-            with conn.cursor() as cur:
-                cur.execute(query, (self.schema_name,))
-                locked_relations = cur.fetchone()[0]
-
-            if not locked_relations:
-                break
-
-            elapsed = time.monotonic() - start_time
-            if elapsed >= max_wait_seconds:
-                raise RuntimeError(
-                    f"Timed out waiting {max_wait_seconds}s for active AccessExclusiveLocks to release on: {locked_relations}"
-                )
-
-            self.log.log(
-                "WARN",
-                self.section,
-                f"Active AccessExclusiveLock on: {locked_relations}. Waiting {check_interval_seconds}s (elapsed: {int(elapsed)}s)..."
-            )
-            time.sleep(check_interval_seconds)
-
     def latest_snapshot_id(self, conn):
         return self.scalar(conn, "SELECT max(snapshot_id) FROM metadata_snapshot;")
 
     def is_initial_run(self, conn):
         return self.scalar(conn, "SELECT NOT EXISTS (SELECT 1 FROM metadata_snapshot);")
-
-    def has_successful_run_today(self, conn):
-        query = """
-            SELECT EXISTS (
-                SELECT 1 
-                FROM metadata_snapshot 
-                WHERE processed_time::date = current_date
-            );
-        """
-        return self.scalar(conn, query)
-
-    def has_already_logged_skip_today(self, log_path):
-        if not os.path.exists(log_path):
-            return False
-        today_str = datetime.now().strftime("%Y-%m-%d")
-        try:
-            with open(log_path, "r", encoding="utf-8", errors="ignore") as f:
-                for line in f:
-                    if today_str in line and "A successful run was already completed today. Skipping execution for today." in line:
-                        return True
-            return False
-        except Exception:
-            return False
 
     def latest_change_count(self, conn):
         return self.scalar(
@@ -321,128 +219,62 @@ class PDCDPartitionRunner:
         )
 
     def write_header(self):
-        self.log.log("INFO", self.section, "========================================")
-        self.log.log(
-            "INFO",
-            self.section,
-            f"Run started : {datetime.now().strftime('%a %b %d %H:%M:%S %Z %Y')}"
-        )
-        self.log.log("INFO", self.section, f"Section     : [{self.section}]")
-        self.log.log("INFO", self.section, f"Host        : {self.host}")
-        self.log.log("INFO", self.section, f"Port        : {self.port}")
-        self.log.log("INFO", self.section, f"Database    : {self.dbname}")
-        self.log.log("INFO", self.section, f"User        : {self.user}")
-        self.log.log("INFO", self.section, f"Schema Name : {self.schema_name}")
-        # self.log.log("INFO", self.section, "Active Conns: 1")
-        # self.log.log("INFO", self.section, f"Lock Timeout: {LOCK_TIMEOUT}")
-        # self.log.log("INFO", self.section, f"Stmt Timeout: {STATEMENT_TIMEOUT}")
-        self.log.log(
-            "INFO",
-            self.section,
-            f"Max Parallel: {MAX_PARALLEL_WORKERS_PER_GATHER}"
-        )
-        self.log.log("INFO", self.section, "========================================")
-        self.log.log("INFO", self.section, "Executing process_metadata_md5_changes...")
+        self.log.write("========================================")
+        self.log.write(
+            f"Run started : {datetime.now().strftime('%a %b %d %H:%M:%S %Z %Y')}")
+        self.log.write(f"Section     : [{self.section}]")
+        self.log.write(f"Host        : {self.host}")
+        self.log.write(f"Port        : {self.port}")
+        self.log.write(f"Database    : {self.dbname}")
+        self.log.write(f"User        : {self.user}")
+        self.log.write(f"Schema Name : {self.schema_name}")
+        self.log.write("Active Conns: 1")
+        self.log.write(f"Lock Timeout: {LOCK_TIMEOUT}")
+        self.log.write(f"Stmt Timeout: {STATEMENT_TIMEOUT}")
+        self.log.write(
+            f"Max Parallel: {MAX_PARALLEL_WORKERS_PER_GATHER}")
+        self.log.write("========================================")
+        self.log.write("Executing process_metadata_md5_changes...")
 
     def run(self):
         os.makedirs(LOG_DIR, exist_ok=True)
-        log_path = os.path.join(LOG_DIR, f"{self.dbname}.log")
+        log_path = os.path.join(
+            LOG_DIR, f"{self.dbname}_{datetime.now().strftime('%Y-%m-%d')}.log")
+        self.log = LogWriter(log_path)
 
-        self.current_snapshot_id = None
         try:
             run_started_at = time.monotonic()
             self.init_pool()
             with self.connection() as conn:
                 with self.advisory_lock(conn):
                     self.validate_partition_setup(conn)
-                    if self.once_daily and self.has_successful_run_today(conn):
-                        if self.has_already_logged_skip_today(log_path):
-                            return
-                        self.log = LogWriter(log_path)
-                        self.log.log("INFO", self.section, "A successful run was already completed today. Skipping execution for today.")
-                        return
-
-                    self.log = LogWriter(log_path)
                     self.write_header()
-                    self.log.step_header(self.section)
+                    self.log.step_header()
 
-                    # Pre-emptively wait for active exclusive locks on metadata target tables
-                    self.wait_for_exclusive_locks(conn)
+                    if self.is_initial_run(conn):
+                        self.run_initial(conn)
+                    else:
+                        self.run_subsequent(conn)
 
-                    # Run connection in autocommit = True to avoid holding catalog locks across steps
-                    conn.autocommit = True
-                    try:
-                        if self.is_initial_run(conn):
-                            self.run_initial(conn)
-                        else:
-                            self.run_subsequent(conn)
-
-                        change_count = self.latest_change_count(conn)
-                        self.run_step(conn, "load_metadata_md5_metrics",
-                                      "SELECT load_metadata_md5_metrics();")
-                    except Exception as exc:
-                        if self.current_snapshot_id is not None:
-                            self.log.log("WARN", self.section, f"Run failed. Cleaning up failed snapshot_id: {self.current_snapshot_id}...")
-                            rollback_done = False
-                            try:
-                                if not conn.closed:
-                                    try:
-                                        self.execute(conn, "SELECT rollback_failed_snapshot(%s);", (self.current_snapshot_id,))
-                                        self.log.log("INFO", self.section, f"Cleaned up failed snapshot_id: {self.current_snapshot_id}.")
-                                        rollback_done = True
-                                    except psycopg2.Error:
-                                        pass
-                            except Exception:
-                                pass
-
-                            if not rollback_done:
-                                try:
-                                    self.log.log("INFO", self.section, "Obtaining fresh direct connection for rollback cleanup...")
-                                    direct_conn = psycopg2.connect(
-                                        host=self.host,
-                                        port=self.port,
-                                        dbname=self.dbname,
-                                        user=self.user,
-                                        password=self.password,
-                                        connect_timeout=10,
-                                    )
-                                    try:
-                                        direct_conn.autocommit = True
-                                        with direct_conn.cursor() as cur:
-                                            cur.execute(f"SET search_path TO {self.schema_name};")
-                                            cur.execute("SELECT rollback_failed_snapshot(%s);", (self.current_snapshot_id,))
-                                        self.log.log("INFO", self.section, f"Cleaned up failed snapshot_id: {self.current_snapshot_id} using fresh direct connection.")
-                                    finally:
-                                        direct_conn.close()
-                                except Exception as cleanup_exc:
-                                    clean_cleanup_err = format_error_message(cleanup_exc)
-                                    self.log.log("ERROR", self.section, f"Failed to cleanup snapshot_id {self.current_snapshot_id}: {clean_cleanup_err}")
-                        raise exc
+                    change_count = self.latest_change_count(conn)
+                    self.run_step(conn, "load_metadata_md5_metrics",
+                                  "SELECT load_metadata_md5_metrics();")
 
                     if change_count == 0:
-                        self.log.log(
-                            "INFO",
-                            self.section,
-                            "NOTICE:  No changes detected -> Only base metrics inserted."
-                        )
+                        self.log.write(
+                            "NOTICE:  No changes detected -> Only base metrics inserted.")
 
-                    self.log.log(
-                        "INFO",
-                        self.section,
-                        f"Run completed: {datetime.now().strftime('%a %b %d %H:%M:%S %Z %Y')}"
-                    )
-                    self.log.log(
-                        "INFO",
-                        self.section,
-                        f"Total duration: {format_duration(time.monotonic() - run_started_at)}"
-                    )
+                    self.log.write(
+                        f"Run completed: {datetime.now().strftime('%a %b %d %H:%M:%S %Z %Y')}")
+                    self.log.write(
+                        f"Total duration: {format_duration(time.monotonic() - run_started_at)}")
                     self.log.write()
-                    self.log.log("INFO", self.section, "========================================")
+
+                    self.log.write("========================================")
 
         except Exception as exc:
             if self.log:
-                clean_err = format_error_message(exc)
-                self.log.log("ERROR", self.section, f"Batch failed: {clean_err}")
+                self.log.write(f"ERROR: [{self.section}] Batch failed: {exc}")
             raise
         finally:
             if self.conn_pool:
@@ -452,7 +284,7 @@ class PDCDPartitionRunner:
 
     def run_initial(self, conn):
         cte = self.effective_schemas_cte()
-        self.log.log("INFO", self.section, f" {'mode':<44}| {'Initial Load':<23}| 00:00:00")
+        self.log.write(f" {'mode':<44}| {'Initial Load':<23}| 00:00:00")
 
         if self.has_existing_initial_data(conn):
             if not ALLOW_INITIAL_CLEANUP:
@@ -468,7 +300,6 @@ class PDCDPartitionRunner:
             "SELECT snapshot_id FROM load_snapshot_table();",
             result_prefix="snapshot_id",
         )
-        self.current_snapshot_id = snapshot_id
         self.run_step(
             conn,
             "create_staging_partitions",
@@ -503,24 +334,20 @@ class PDCDPartitionRunner:
             FROM effective_schemas, load_md5_metadata_staging_non_table_objects(effective_schemas.schemas);
             """,
         )
-        # self.run_step(
-        #     conn,
-        #     "analyze_tables",
-        #     """
-        #     ANALYZE metadata_md5_changes;
-        #     ANALYZE metadata_md5_staging_table_objects;
-        #     ANALYZE metadata_md5_staging_non_table_objects;
-        #     """,
-        # )
-        return snapshot_id
+        self.run_step(
+            conn,
+            "analyze_tables",
+            """
+            ANALYZE metadata_md5_changes;
+            ANALYZE metadata_md5_staging_table_objects;
+            ANALYZE metadata_md5_staging_non_table_objects;
+            """,
+        )
 
     def run_subsequent(self, conn):
         cte = self.effective_schemas_cte()
-        self.log.log(
-            "INFO",
-            self.section,
-            f" {'mode':<44}| {'Subsequent Compare Run':<23}| 00:00:00"
-        )
+        self.log.write(
+            f" {'mode':<44}| {'Subsequent Compare Run':<23}| 00:00:00")
 
         previous_snapshot_id = self.latest_snapshot_id(conn)
         self.run_step(
@@ -537,7 +364,6 @@ class PDCDPartitionRunner:
             "SELECT snapshot_id FROM load_snapshot_table();",
             result_prefix="snapshot_id",
         )
-        self.current_snapshot_id = snapshot_id
 
         self.run_step(
             conn,
@@ -589,12 +415,9 @@ class PDCDPartitionRunner:
             (snapshot_id,),
             result=f"Kept _p{snapshot_id}",
         )
-        self.log.log(
-            "INFO",
-            self.section,
+        self.log.write(
             f" Previous snapshot partition was _p{previous_snapshot_id}; current snapshot partition is _p{snapshot_id}."
         )
-        return snapshot_id
 
     def has_existing_initial_data(self, conn):
         return self.scalar(
@@ -684,14 +507,12 @@ def main():
 
                 retry_at = (datetime.now() + timedelta(
                     seconds=RETRY_DELAY_SECONDS)).strftime('%a %b %d %H:%M:%S %Z %Y')
-                clean_err = format_error_message(exc)
-                timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                 print(
-                    f"{timestamp} [WARN ] Attempt {attempt} failed with retryable error: {clean_err}",
+                    f"WARN: [{section}] Attempt {attempt} failed with retryable error: {exc}",
                     file=sys.stderr,
                 )
                 print(
-                    f"{timestamp} [INFO ] Retrying after {RETRY_DELAY_SECONDS} seconds "
+                    f"WARN: [{section}] Retrying after {RETRY_DELAY_SECONDS} seconds "
                     f"(retry {attempt} of {MAX_RETRIES}) at {retry_at}",
                     file=sys.stderr,
                 )
@@ -702,7 +523,5 @@ if __name__ == "__main__":
     try:
         main()
     except Exception as exc:
-        clean_err = format_error_message(exc)
-        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        print(f"{timestamp} [ERROR] {clean_err}", file=sys.stderr)
+        print(f"ERROR: {exc}", file=sys.stderr)
         sys.exit(1)

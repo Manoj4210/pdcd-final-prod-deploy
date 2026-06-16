@@ -1,0 +1,29 @@
+2026-06-16 13:04:04 [INFO ] ========================================
+2026-06-16 13:04:04 [INFO ] Run started : Tue Jun 16 13:04:04  2026
+2026-06-16 13:04:04 [INFO ] Section     : [database_1]
+2026-06-16 13:04:04 [INFO ] Host        : localhost
+2026-06-16 13:04:04 [INFO ] Port        : 5432
+2026-06-16 13:04:04 [INFO ] Database    : blocking_check
+2026-06-16 13:04:04 [INFO ] User        : manoj_anumalla
+2026-06-16 13:04:04 [INFO ] Schema Name : data_monitoring
+2026-06-16 13:04:04 [INFO ] Max Parallel: 0
+2026-06-16 13:04:04 [INFO ] ========================================
+2026-06-16 13:04:04 [INFO ] Executing process_metadata_md5_changes...
+2026-06-16 13:04:04 [INFO ]                   step_name                  |         result         |    duration     
+2026-06-16 13:04:04 [INFO ] ---------------------------------------------+------------------------+-----------------
+2026-06-16 13:04:04 [INFO ]  mode                                        | Subsequent Compare Run | 00:00:00
+2026-06-16 13:04:04 [INFO ]  prepare_previous_partitions                 | Kept _p2               | 00:00:00
+2026-06-16 13:04:04 [INFO ]  load_snapshot_table                         | snapshot_id: 3         | 00:00:00
+2026-06-16 13:04:04 [INFO ]  compare_load_md5_table_metadata             | Completed              | 00:00:00
+2026-06-16 13:04:04 [INFO ]  compare_load_md5_non_table_metadata         | Completed              | 00:00:00
+2026-06-16 13:04:04 [INFO ]  create_staging_partitions                   | Created _p3            | 00:00:00
+2026-06-16 13:04:04 [INFO ]  load_md5_metadata_staging_table_objects     | Completed              | 00:00:00
+2026-06-16 13:04:04 [INFO ]  load_md5_metadata_staging_non_table_objects | Completed              | 00:00:00
+2026-06-16 13:04:04 [INFO ]  drop_old_partitions                         | Kept _p3               | 00:00:00
+2026-06-16 13:04:04 [INFO ]  Previous snapshot partition was _p2; current snapshot partition is _p3.
+2026-06-16 13:04:04 [INFO ]  load_metadata_md5_metrics                   | Completed              | 00:00:00
+2026-06-16 13:04:04 [INFO ] NOTICE:  No changes detected -> Only base metrics inserted.
+2026-06-16 13:04:04 [INFO ] Run completed: Tue Jun 16 13:04:04  2026
+2026-06-16 13:04:04 [INFO ] Total duration: 00:00:00
+
+2026-06-16 13:04:04 [INFO ] ========================================

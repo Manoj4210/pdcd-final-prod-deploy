@@ -9,7 +9,6 @@ objects to be deployed in the target schema.
 
 import configparser
 import os
-import shutil
 import sys
 import time
 from contextlib import contextmanager
@@ -49,32 +48,8 @@ def format_error_message(exc):
 
 
 class LogWriter:
-    def __init__(self, path, max_bytes=10*1024*1024, backup_count=5):
-        self.path = path
-        self.max_bytes = max_bytes
-        self.backup_count = backup_count
-
-        # Rotate logs if active file is too large
-        if os.path.exists(self.path) and os.path.getsize(self.path) >= self.max_bytes:
-            self.rotate_logs()
-
-        self.handle = open(self.path, "a", encoding="utf-8", buffering=1)
-
-    def rotate_logs(self):
-        base, ext = os.path.splitext(self.path)
-        for i in range(self.backup_count - 1, 0, -1):
-            src = f"{base}_{i}{ext}"
-            dst = f"{base}_{i+1}{ext}"
-            if os.path.exists(src):
-                try:
-                    shutil.move(src, dst)
-                except Exception:
-                    pass
-        dst = f"{base}_1{ext}"
-        try:
-            shutil.move(self.path, dst)
-        except Exception:
-            pass
+    def __init__(self, path):
+        self.handle = open(path, "a", buffering=1)
 
     def write(self, message=""):
         self.handle.write(f"{message}\n")
@@ -82,7 +57,7 @@ class LogWriter:
 
     def log(self, level, section, message):
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        log_line = f"{timestamp} [{level:<5}] {message}"
+        log_line = f"{timestamp} [{level:<5}] [{section}] {message}"
         self.write(log_line)
         if level in ("ERROR", "CRITICAL"):
             print(log_line, file=sys.stderr)
@@ -113,7 +88,6 @@ class PDCDPartitionRunner:
         self.user = config.get("user")
         self.password = config.get("password")
         self.schema_name = config.get("schema_name")
-        self.once_daily = config.get("once_daily", "false").lower() == "true" or os.getenv("PDCD_ONCE_DAILY", "false").lower() == "true"
         self.conn_pool = None
         self.log = None
 
@@ -286,29 +260,6 @@ class PDCDPartitionRunner:
     def is_initial_run(self, conn):
         return self.scalar(conn, "SELECT NOT EXISTS (SELECT 1 FROM metadata_snapshot);")
 
-    def has_successful_run_today(self, conn):
-        query = """
-            SELECT EXISTS (
-                SELECT 1 
-                FROM metadata_snapshot 
-                WHERE processed_time::date = current_date
-            );
-        """
-        return self.scalar(conn, query)
-
-    def has_already_logged_skip_today(self, log_path):
-        if not os.path.exists(log_path):
-            return False
-        today_str = datetime.now().strftime("%Y-%m-%d")
-        try:
-            with open(log_path, "r", encoding="utf-8", errors="ignore") as f:
-                for line in f:
-                    if today_str in line and "A successful run was already completed today. Skipping execution for today." in line:
-                        return True
-            return False
-        except Exception:
-            return False
-
     def latest_change_count(self, conn):
         return self.scalar(
             conn,
@@ -333,9 +284,9 @@ class PDCDPartitionRunner:
         self.log.log("INFO", self.section, f"Database    : {self.dbname}")
         self.log.log("INFO", self.section, f"User        : {self.user}")
         self.log.log("INFO", self.section, f"Schema Name : {self.schema_name}")
-        # self.log.log("INFO", self.section, "Active Conns: 1")
-        # self.log.log("INFO", self.section, f"Lock Timeout: {LOCK_TIMEOUT}")
-        # self.log.log("INFO", self.section, f"Stmt Timeout: {STATEMENT_TIMEOUT}")
+        self.log.log("INFO", self.section, "Active Conns: 1")
+        self.log.log("INFO", self.section, f"Lock Timeout: {LOCK_TIMEOUT}")
+        self.log.log("INFO", self.section, f"Stmt Timeout: {STATEMENT_TIMEOUT}")
         self.log.log(
             "INFO",
             self.section,
@@ -346,7 +297,9 @@ class PDCDPartitionRunner:
 
     def run(self):
         os.makedirs(LOG_DIR, exist_ok=True)
-        log_path = os.path.join(LOG_DIR, f"{self.dbname}.log")
+        log_path = os.path.join(
+            LOG_DIR, f"{self.dbname}_{datetime.now().strftime('%Y-%m-%d')}.log")
+        self.log = LogWriter(log_path)
 
         self.current_snapshot_id = None
         try:
@@ -355,14 +308,6 @@ class PDCDPartitionRunner:
             with self.connection() as conn:
                 with self.advisory_lock(conn):
                     self.validate_partition_setup(conn)
-                    if self.once_daily and self.has_successful_run_today(conn):
-                        if self.has_already_logged_skip_today(log_path):
-                            return
-                        self.log = LogWriter(log_path)
-                        self.log.log("INFO", self.section, "A successful run was already completed today. Skipping execution for today.")
-                        return
-
-                    self.log = LogWriter(log_path)
                     self.write_header()
                     self.log.step_header(self.section)
 
@@ -383,40 +328,12 @@ class PDCDPartitionRunner:
                     except Exception as exc:
                         if self.current_snapshot_id is not None:
                             self.log.log("WARN", self.section, f"Run failed. Cleaning up failed snapshot_id: {self.current_snapshot_id}...")
-                            rollback_done = False
                             try:
-                                if not conn.closed:
-                                    try:
-                                        self.execute(conn, "SELECT rollback_failed_snapshot(%s);", (self.current_snapshot_id,))
-                                        self.log.log("INFO", self.section, f"Cleaned up failed snapshot_id: {self.current_snapshot_id}.")
-                                        rollback_done = True
-                                    except psycopg2.Error:
-                                        pass
-                            except Exception:
-                                pass
-
-                            if not rollback_done:
-                                try:
-                                    self.log.log("INFO", self.section, "Obtaining fresh direct connection for rollback cleanup...")
-                                    direct_conn = psycopg2.connect(
-                                        host=self.host,
-                                        port=self.port,
-                                        dbname=self.dbname,
-                                        user=self.user,
-                                        password=self.password,
-                                        connect_timeout=10,
-                                    )
-                                    try:
-                                        direct_conn.autocommit = True
-                                        with direct_conn.cursor() as cur:
-                                            cur.execute(f"SET search_path TO {self.schema_name};")
-                                            cur.execute("SELECT rollback_failed_snapshot(%s);", (self.current_snapshot_id,))
-                                        self.log.log("INFO", self.section, f"Cleaned up failed snapshot_id: {self.current_snapshot_id} using fresh direct connection.")
-                                    finally:
-                                        direct_conn.close()
-                                except Exception as cleanup_exc:
-                                    clean_cleanup_err = format_error_message(cleanup_exc)
-                                    self.log.log("ERROR", self.section, f"Failed to cleanup snapshot_id {self.current_snapshot_id}: {clean_cleanup_err}")
+                                self.execute(conn, "SELECT rollback_failed_snapshot(%s);", (self.current_snapshot_id,))
+                                self.log.log("INFO", self.section, f"Cleaned up failed snapshot_id: {self.current_snapshot_id}.")
+                            except Exception as cleanup_exc:
+                                clean_cleanup_err = format_error_message(cleanup_exc)
+                                self.log.log("ERROR", self.section, f"Failed to cleanup snapshot_id {self.current_snapshot_id}: {clean_cleanup_err}")
                         raise exc
 
                     if change_count == 0:
@@ -437,6 +354,7 @@ class PDCDPartitionRunner:
                         f"Total duration: {format_duration(time.monotonic() - run_started_at)}"
                     )
                     self.log.write()
+
                     self.log.log("INFO", self.section, "========================================")
 
         except Exception as exc:
@@ -654,7 +572,7 @@ def is_retryable_error(exc):
 def main():
     config = load_config()
     sections = [section for section in config.sections(
-    ) if section.startswith("database_")]
+        ) if section.startswith("database_")]
     if not sections:
         raise RuntimeError(f"No [database_*] sections found in {CONFIG_FILE}")
 
@@ -687,11 +605,11 @@ def main():
                 clean_err = format_error_message(exc)
                 timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                 print(
-                    f"{timestamp} [WARN ] Attempt {attempt} failed with retryable error: {clean_err}",
+                    f"{timestamp} [WARN ] [{section}] Attempt {attempt} failed with retryable error: {clean_err}",
                     file=sys.stderr,
                 )
                 print(
-                    f"{timestamp} [INFO ] Retrying after {RETRY_DELAY_SECONDS} seconds "
+                    f"{timestamp} [INFO ] [{section}] Retrying after {RETRY_DELAY_SECONDS} seconds "
                     f"(retry {attempt} of {MAX_RETRIES}) at {retry_at}",
                     file=sys.stderr,
                 )
@@ -704,5 +622,5 @@ if __name__ == "__main__":
     except Exception as exc:
         clean_err = format_error_message(exc)
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        print(f"{timestamp} [ERROR] {clean_err}", file=sys.stderr)
+        print(f"{timestamp} [ERROR] [system] {clean_err}", file=sys.stderr)
         sys.exit(1)

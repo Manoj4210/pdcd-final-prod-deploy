@@ -4,7 +4,7 @@ import os
 import sys
 
 CONFIG_FILE = "pdcd_config.ini"
-SECTION = "database_2"  # Change to database_2 if needed
+SECTION = "database_1"  # Change to database_2 if needed
 
 config = ConfigParser()
 config.read(CONFIG_FILE)

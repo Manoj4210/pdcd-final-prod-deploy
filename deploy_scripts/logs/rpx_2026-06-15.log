@@ -1,0 +1,58 @@
+2026-06-15 14:49:29 [INFO ] ========================================
+2026-06-15 14:49:29 [INFO ] Run started : Mon Jun 15 14:49:29  2026
+2026-06-15 14:49:29 [INFO ] Section     : [database_dev_pth]
+2026-06-15 14:49:29 [INFO ] Host        : 10.50.168.126
+2026-06-15 14:49:29 [INFO ] Port        : 5432
+2026-06-15 14:49:29 [INFO ] Database    : rpx
+2026-06-15 14:49:29 [INFO ] User        : tds_etl_app
+2026-06-15 14:49:29 [INFO ] Schema Name : data_monitoring
+2026-06-15 14:49:29 [INFO ] Max Parallel: 0
+2026-06-15 14:49:29 [INFO ] ========================================
+2026-06-15 14:49:29 [INFO ] Executing process_metadata_md5_changes...
+2026-06-15 14:49:29 [INFO ]                   step_name                  |         result         |    duration     
+2026-06-15 14:49:29 [INFO ] ---------------------------------------------+------------------------+-----------------
+2026-06-15 14:49:30 [INFO ]  mode                                        | Subsequent Compare Run | 00:00:00
+2026-06-15 14:49:31 [INFO ]  prepare_previous_partitions                 | Kept _p2               | 00:00:00
+2026-06-15 14:49:33 [INFO ]  load_snapshot_table                         | snapshot_id: 3         | 00:00:01
+2026-06-15 14:53:36 [INFO ]  compare_load_md5_table_metadata             | Completed              | 00:04:03
+2026-06-15 14:54:19 [INFO ]  compare_load_md5_non_table_metadata         | Completed              | 00:00:42
+2026-06-15 14:54:20 [INFO ]  create_staging_partitions                   | Created _p3            | 00:00:01
+2026-06-15 14:54:22 [INFO ]  load_md5_metadata_staging_table_objects     | Completed              | 00:00:01
+2026-06-15 14:54:22 [INFO ]  load_md5_metadata_staging_non_table_objects | Completed              | 00:00:00
+2026-06-15 14:54:24 [INFO ]  drop_old_partitions                         | Kept _p3               | 00:00:02
+2026-06-15 14:54:24 [INFO ]  Previous snapshot partition was _p2; current snapshot partition is _p3.
+2026-06-15 14:54:32 [INFO ]  load_metadata_md5_metrics                   | Completed              | 00:00:00
+2026-06-15 14:54:32 [INFO ] Run completed: Mon Jun 15 14:54:32  2026
+2026-06-15 14:54:32 [INFO ] Total duration: 00:05:16
+
+2026-06-15 14:54:32 [INFO ] ========================================
+2026-06-15 14:56:45 [INFO ] ========================================
+2026-06-15 14:56:45 [INFO ] Run started : Mon Jun 15 14:56:45  2026
+2026-06-15 14:56:45 [INFO ] Section     : [database_dev_pth]
+2026-06-15 14:56:45 [INFO ] Host        : 10.50.168.126
+2026-06-15 14:56:45 [INFO ] Port        : 5432
+2026-06-15 14:56:45 [INFO ] Database    : rpx
+2026-06-15 14:56:45 [INFO ] User        : tds_etl_app
+2026-06-15 14:56:45 [INFO ] Schema Name : data_monitoring
+2026-06-15 14:56:45 [INFO ] Max Parallel: 0
+2026-06-15 14:56:45 [INFO ] ========================================
+2026-06-15 14:56:45 [INFO ] Executing process_metadata_md5_changes...
+2026-06-15 14:56:45 [INFO ]                   step_name                  |         result         |    duration     
+2026-06-15 14:56:45 [INFO ] ---------------------------------------------+------------------------+-----------------
+2026-06-15 14:56:46 [INFO ]  mode                                        | Subsequent Compare Run | 00:00:00
+2026-06-15 14:56:47 [INFO ]  prepare_previous_partitions                 | Kept _p3               | 00:00:00
+2026-06-15 14:56:48 [INFO ]  load_snapshot_table                         | snapshot_id: 4         | 00:00:00
+2026-06-15 14:58:11 [INFO ]  compare_load_md5_table_metadata             | Completed              | 00:01:22
+2026-06-15 14:58:32 [INFO ]  compare_load_md5_non_table_metadata         | Completed              | 00:00:20
+2026-06-15 14:58:33 [INFO ]  create_staging_partitions                   | Created _p4            | 00:00:01
+2026-06-15 14:58:36 [INFO ]  load_md5_metadata_staging_table_objects     | Completed              | 00:00:02
+2026-06-15 14:58:39 [INFO ]  load_md5_metadata_staging_non_table_objects | Completed              | 00:00:03
+2026-06-15 14:58:42 [INFO ]  drop_old_partitions                         | Kept _p4               | 00:00:02
+2026-06-15 14:58:42 [INFO ]  Previous snapshot partition was _p3; current snapshot partition is _p4.
+2026-06-15 14:58:46 [INFO ]  load_metadata_md5_metrics                   | Completed              | 00:00:02
+2026-06-15 14:58:46 [INFO ] NOTICE:  No changes detected -> Only base metrics inserted.
+2026-06-15 14:58:46 [INFO ] Run completed: Mon Jun 15 14:58:46  2026
+2026-06-15 14:58:46 [INFO ] Total duration: 00:02:19
+
+2026-06-15 14:58:46 [INFO ] ========================================
+2026-06-15 18:37:12 [INFO ] A successful run was already completed today. Skipping execution for today.
